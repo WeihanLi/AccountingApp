@@ -9,17 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="wwwroot\lib\layer\layer.js" />
-    <Content Include="wwwroot\lib\layer\mobile\layer.js" />
-    <Content Include="wwwroot\lib\layer\mobile\need\layer.css" />
-    <Content Include="wwwroot\lib\layer\skin\default\icon-ext.png" />
-    <Content Include="wwwroot\lib\layer\skin\default\icon.png" />
-    <Content Include="wwwroot\lib\layer\skin\default\layer.css" />
-    <Content Include="wwwroot\lib\layer\skin\default\loading-0.gif" />
-    <Content Include="wwwroot\lib\layer\skin\default\loading-1.gif" />
-    <Content Include="wwwroot\lib\layer\skin\default\loading-2.gif" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="1.1.2" />
@@ -40,8 +29,4 @@
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\Account\" />
-  </ItemGroup>
-
 </Project>
