@@ -44,21 +44,6 @@ namespace AccountingApp.DataAccess
             return await _dbEntity.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> UpdateAsync(Expression<Func<T, bool>> whereLamdba, params string[] propertyNames)
-        {
-            var list = await _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba).ToListAsync();
-            foreach (var item in list)
-            {
-                var entry = _dbEntity.Entry(item);
-                entry.State = EntityState.Unchanged;
-                foreach (string proName in propertyNames)
-                {
-                    entry.Property(proName).IsModified = true;
-                }
-            }
-            return await _dbEntity.SaveChangesAsync() > 0;
-        }
-
         public async Task<List<T>> SelectAsync<TKey>(Expression<Func<T, bool>> whereLamdba, Expression<Func<T, TKey>> orderbyLambda, bool isAsc = false)
         {
             if (isAsc)
@@ -106,15 +91,12 @@ namespace AccountingApp.DataAccess
 
         public async Task<bool> DeleteAsync(Expression<Func<T, bool>> whereLamdba)
         {
-            var list = _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba);
+            var list = _dbEntity.Set<T>().Where(whereLamdba).ToList();
             if (list != null && list.Any())
             {
-                await list.ForEachAsync(i => i.IsDeleted = true);
-                foreach (var item in list)
+                for (int i = 0; i < list.Count(); i++)
                 {
-                    var entry = _dbEntity.Entry(item);
-                    entry.State = EntityState.Unchanged;
-                    entry.Property("IsDeleted").IsModified = true;
+                    list[i].IsDeleted = true;
                 }
                 return await _dbEntity.SaveChangesAsync() > 0;
             }
