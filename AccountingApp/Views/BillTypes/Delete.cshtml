@@ -1,0 +1,58 @@
+﻿@model AccountingApp.Models.BillType
+
+@{
+    ViewData["Title"] = "删除账单类型";
+}
+
+<h2>@ViewData["Title"] </h2>
+
+<h3>确定要删除该账单类型？</h3>
+<div>
+    <hr />
+    <input type="hidden" asp-for="PKID" />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.TypeName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TypeName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TypeDesc)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TypeDesc)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedBy)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CreatedBy)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CreatedTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UpdatedBy)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UpdatedBy)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UpdatedTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UpdatedTime)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <div class="form-actions no-color">
+            <input type="submit" value="删除" class="btn btn-default" /> |
+            <a asp-action="Index">返回</a>
+        </div>
+    </form>
+</div>

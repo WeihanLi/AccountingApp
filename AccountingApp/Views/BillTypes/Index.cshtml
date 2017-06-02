@@ -1,0 +1,64 @@
+﻿@model IEnumerable<AccountingApp.Models.BillType>
+
+@{
+    ViewData["Title"] = "账单类型";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create">添加账单类型</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.TypeName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TypeDesc)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreatedBy)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.CreatedTime)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UpdatedBy)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.UpdatedTime)
+                </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TypeName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TypeDesc)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedBy)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedTime)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.PKID">编辑</a> |
+                <a asp-action="Delete" asp-route-id="@item.PKID">删除</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
