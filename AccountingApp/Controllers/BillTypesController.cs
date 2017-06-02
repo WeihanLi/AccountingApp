@@ -80,7 +80,7 @@ namespace AccountingApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TypeName,TypeDesc,PKID,CreatedTime,CreatedBy")] BillType billType)
+        public async Task<IActionResult> Edit(int id, [Bind("TypeName,TypeDesc,PKID")] BillType billType)
         {
             if (id != billType.PKID)
             {
@@ -92,7 +92,7 @@ namespace AccountingApp.Controllers
                 try
                 {
                     billType.UpdatedBy = User.Identity.Name;
-                    await BusinessHelper.BillTypeHelper.UpdateAsync(billType);
+                    await BusinessHelper.BillTypeHelper.UpdateAsync(billType,"TypeName","TypeDesc","UpdatedBy","UpdatedTime");
                 }
                 catch (DbUpdateConcurrencyException)
                 {

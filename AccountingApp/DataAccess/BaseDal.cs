@@ -25,9 +25,18 @@ namespace AccountingApp.DataAccess
             return entity;
         }
 
+        /// <summary>
+        /// update(update all property)
+        /// </summary>
+        /// <param name="entity">entity</param>
+        /// <returns></returns>
         public async Task<bool> UpdateAsync(T entity)
         {
             entity.UpdatedTime = DateTime.Now;
+            // reslove the exception
+            // cannot be tracked because another instance of this type with the same key is already being tracked
+            // https://stackoverflow.com/questions/6033638/an-object-with-the-same-key-already-exists-in-the-objectstatemanager-the-object
+            _dbEntity.Entry(entity).CurrentValues.SetValues(entity);
             _dbEntity.Update(entity);
             return await _dbEntity.SaveChangesAsync() > 0;
         }
@@ -36,8 +45,30 @@ namespace AccountingApp.DataAccess
         {
             entity.UpdatedTime = DateTime.Now;
             var entry = _dbEntity.Entry(entity);
+            // reslove the exception
+            // cannot be tracked because another instance of this type with the same key is already being tracked
+            // https://stackoverflow.com/questions/6033638/an-object-with-the-same-key-already-exists-in-the-objectstatemanager-the-object
+            entry.CurrentValues.SetValues(entity);
+
             entry.State = EntityState.Unchanged;
             foreach (string proName in propertyNames)
+            {
+                entry.Property(proName).IsModified = true;
+            }
+            return await _dbEntity.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateAsyncy<TProperty>(T entity, params Expression<Func<T, TProperty>>[] propertyNames)
+        {
+            entity.UpdatedTime = DateTime.Now;
+            var entry = _dbEntity.Entry(entity);
+            // reslove the exception
+            // cannot be tracked because another instance of this type with the same key is already being tracked
+            // https://stackoverflow.com/questions/6033638/an-object-with-the-same-key-already-exists-in-the-objectstatemanager-the-object
+            entry.CurrentValues.SetValues(entity);
+
+            entry.State = EntityState.Unchanged;
+            foreach (var proName in propertyNames)
             {
                 entry.Property(proName).IsModified = true;
             }
@@ -71,7 +102,7 @@ namespace AccountingApp.DataAccess
 
         public async Task<T> FetchAsync(int id)
         {
-            return await _dbEntity.Set<T>().FirstOrDefaultAsync(e=>e.PKID == id);
+            return await _dbEntity.Set<T>().AsNoTracking().FirstOrDefaultAsync(e=>e.PKID == id);
         }
 
         public async Task<T> FetchAsync(Expression<Func<T, bool>> whereLamdba)
@@ -86,7 +117,7 @@ namespace AccountingApp.DataAccess
 
         public async Task<int> QueryCountAsync(Expression<Func<T, bool>> whereLamdba)
         {
-            return await _dbEntity.Set<T>().CountAsync(whereLamdba);
+            return await _dbEntity.Set<T>().AsNoTracking().CountAsync(whereLamdba);
         }
 
         public async Task<bool> DeleteAsync(Expression<Func<T, bool>> whereLamdba)
