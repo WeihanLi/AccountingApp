@@ -1,0 +1,12 @@
+language: csharp
+solution: AccountingApp.sln
+# runtime
+mono: none
+dotnet: 1.1
+dist: trusty
+
+install:
+  - nuget restore AccountingApp.sln
+
+script:
+  - msbuild /p:Configuration=Release ./AccountingApp.sln
