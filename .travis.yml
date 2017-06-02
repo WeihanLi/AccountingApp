@@ -1,12 +1,31 @@
 language: csharp
 solution: AccountingApp.sln
-# runtime
+
+# runtime config
 mono: none
 dotnet: 1.0.4
 dist: trusty
 
+# branch build config
+branches:
+  only:
+    - master
+    - dev
+
+  except:
+    - gh-pages
+
+
+# git config
+git:
+  depth: 3
+  lfs_skip_smudge: true # disable the download of LFS objects when cloning
+
+# install dependencies
 install:
   - dotnet restore
 
+# build the project
 script:
-  - dotnet build /p:Configuration=Release ./AccountingApp.sln
+  - dotnet --info
+  - dotnet build --configuration Release
