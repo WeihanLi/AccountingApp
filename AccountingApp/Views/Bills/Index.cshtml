@@ -1,15 +1,111 @@
-﻿@{
-    ViewData["Title"] = "首页";
+﻿@model IEnumerable<AccountingApp.Models.Bill>
+@{
+    ViewData["Title"] = "账单管理";
 }
 <div class="table-wraper">
     <div class="table-header">
         <h3 class="table-title">@ViewData["Title"]</h3>
     </div>
+    <p>
+        <a asp-action="Create"><h4>添加新账单</h4></a>
+    </p>
     <div class="table-body" id="div_main">
-        <ul class="list-group">
-            <li class="list-group-item">@Html.ActionLink("我的账户", "Index", "Account")</li>
-            <li class="list-group-item">@Html.ActionLink("账单类型", "Index", "BillTypes")</li>
-            <li class="list-group-item">@Html.ActionLink("账单管理", "Index", "Bills")</li>
-        </ul>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BillTitle)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BillType)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BillFee)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BillDetails)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BillStatus)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CreatedBy)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.CreatedTime)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UpdatedBy)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.UpdatedTime)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
     </div>
+    <div id="pager"></div>
 </div>
+@section Scripts{
+    <script>
+        var pageIndex = 1, pageSize = 10;
+        function apply(id, status) {
+            //TODO:update status
+            console.log(id + "," + status);
+        }
+        function loadData(pageNum) {
+            if (pageNum) {
+                pageIndex = pageNum;
+            } else {
+                pageIndex = 1;
+            }
+            var loading = layer.load(2);
+            $.getJSON('@Url.Action("List")', { "pageIndex": pageIndex, "pageSize": pageSize }, function (data) {
+                if (data.TotalCount > 0) {
+                    var html = '';
+                    for (var i = 0; i < data.Data.length; i++) {
+                        var _billStatus = '新建';
+                        var btnText = '<button type="button" class="btn btn-success" onclick="apply(' + data.Data[i].PKID + ',1)">申请报销</button>';
+                        switch (data.Data[i].BillStatus) {
+                            case 1:
+                                _billStatus = "申请报销";
+                                btnText = '<button type="button" class="btn btn-success" onclick="apply(' + data.Data[i].PKID + ',2)">确认报销</button>';
+                                break;
+                            case 2:
+                                _billStatus = "已报销";
+                                btnText = '<label>该账单已报销</label>';
+                                break;
+                        }
+                        var tml = '<tr>\
+                        <td>'+ data.Data[i].BillTitle +'</td>\
+                        <td>'+ data.Data[i].AccountBillType.TypeName +'</td>\
+                        <td>'+ data.Data[i].BillFee +'</td>\
+                        <td>'+ data.Data[i].BillDetails +'</td>\
+                        <td>'+ _billStatus +'</td>\
+                        <td>'+ data.Data[i].CreatedBy +'</td>\
+                        <td>'+ data.Data[i].CreatedTime +'</td>\
+                        <td>'+ data.Data[i].UpdatedBy +'</td>\
+                        <td>'+ data.Data[i].UpdatedTime + '</td>\
+                        <td>'+ btnText + ' | <a href="/Bills/Edit/' + data.Data[i].PKID + '">编辑</a> | <a href="/Bills/Delete/' + data.Data[i].PKID +'">删除</a></td>\
+                        </tr>';
+                        html += tml;
+                    }
+                    $("#div_main > table > tbody").html(html);
+                    // TODO: generate pager
+
+                    layer.close(loading);
+                } else {
+                    layer.msg('没有数据');
+                }
+            });
+        }
+        //DOM Ready
+        $(function () {
+            loadData();
+        });
+    </script>
+}

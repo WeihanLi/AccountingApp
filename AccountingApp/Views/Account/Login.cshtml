@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="gb2312" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>登录</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -38,7 +38,7 @@
         </footer>
     </div>
     <script src="~/lib/jquery/dist/jquery.js"></script>
-    <script src="~/lib/layer/layer.js"></script>
+    <script src="~/lib/layer/build/layer.js"></script>
     <script>
         function GetQueryString(name) {
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
@@ -49,9 +49,9 @@
             var username = $("#inputUsername").val();
             var password = $("#inputPassword").val();
             if (username && password) {
-                if (username.length > 2 && username.length <= 8) {
+                if (username.length > 2 && username.length <= 10) {
                 } else {
-                    layer.msg("用户名不合法，用户名长度至少两个字符，最多8个字符");
+                    layer.msg("用户名不合法，用户名长度至少2个字符，最多10个字符");
                     return false;
                 }
                 if (password.length >= 6 && password.length <= 20) {
@@ -81,7 +81,7 @@
                         if (returnUrl) {
                             location.href = returnUrl;
                         } else {
-                            location.href = "/Home/Index";
+                            location.href = "/";
                         }
                     }
                     else {

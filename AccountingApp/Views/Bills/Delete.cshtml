@@ -1,0 +1,91 @@
+﻿@model AccountingApp.Models.Bill
+@{
+    ViewData["Title"] = "删除账单";
+}
+<style>
+    dl{
+        margin-left:1em;
+        padding:1em;
+    }
+    dl > dd{
+        margin:1.4em 1.2em;
+    }
+</style>
+
+<h2>@ViewData["Title"] </h2>
+
+<h3>确定要删除该账单？</h3>
+<div>
+    <hr />
+    <input type="hidden" asp-for="PKID" />
+    <dl>
+        <dt>
+            @Html.DisplayNameFor(model => model.BillTitle)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BillTitle)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BillDetails)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BillDetails)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BillFee)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BillFee)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BillStatus)
+        </dt>
+        <dd>
+            @switch (Model.BillStatus)
+            {
+                case 0:
+                    <label>新建</label>
+                    break;
+                case 1:
+                    <label>申请报销</label>
+                    break;
+                case 2:
+                    <label>已报销</label>
+                    break;
+                default:
+                    break;
+            }
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedBy)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CreatedBy)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatedTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CreatedTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UpdatedBy)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UpdatedBy)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UpdatedTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UpdatedTime)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <div class="form-actions no-color">
+            <input type="submit" value="删除" class="btn btn-danger" /> |
+            <a asp-action="Index">返回</a>
+        </div>
+    </form>
+</div>

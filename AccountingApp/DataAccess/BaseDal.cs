@@ -87,7 +87,7 @@ namespace AccountingApp.DataAccess
             }
         }
 
-        public async Task<List<T>> SelectAsync<TKey>(int pageIndex, int pageSize, Expression<Func<T, bool>> whereLamdba, Expression<Func<T, TKey>> orderbyLambda, bool isAsc)
+        public async Task<List<T>> SelectAsync<TKey>(int pageIndex, int pageSize, Expression<Func<T, bool>> whereLamdba, Expression<Func<T, TKey>> orderbyLambda, bool isAsc = false)
         {
             int offset = (pageIndex - 1) * pageSize;
             if (isAsc)

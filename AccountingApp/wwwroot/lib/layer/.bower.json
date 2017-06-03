@@ -24,7 +24,6 @@
     "commit": "cc4b29dfadbe46faa68472002f2c5d9a19391f32"
   },
   "_source": "https://github.com/sentsin/layer.git",
-  "_target": "^3.0.3",
-  "_originalSource": "layer",
-  "_direct": true
+  "_target": "3.0.3",
+  "_originalSource": "layer"
 }
