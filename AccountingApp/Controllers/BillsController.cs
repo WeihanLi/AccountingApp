@@ -93,6 +93,30 @@ namespace AccountingApp.Controllers
             }
         }
 
+        [HttpPost,ActionName("UpdateBillStatus")]
+        /// <summary>
+        /// 更新账单状态
+        /// </summary>
+        /// <param name="id">账单id</param>
+        /// <param name="status">账单状态</param>
+        /// <returns></returns>
+        public async Task<IActionResult> UpdateBillStatusAsync(int id, int status)
+        {
+            var result = new HelperModels.JsonResultModel();
+            if (id <= 0 || status <= 0)
+            {
+                result.Status = HelperModels.JsonResultStatus.RequestError;
+                result.Msg = "请求参数异常";
+                return Json(result);
+            }
+            Bill bill = new Bill { PKID = id, BillStatus = status };
+            bill.UpdatedBy = User.Identity.Name;
+            await BusinessHelper.BillHelper.UpdateAsync(bill, b => b.BillStatus);
+            result.Status = HelperModels.JsonResultStatus.Success;
+            result.Msg = "操作成功";
+            return Json(result);
+        }
+
         // GET: Bill/Delete/5
         public async Task<ActionResult> Delete(int id)
         {

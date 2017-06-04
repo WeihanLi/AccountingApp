@@ -154,8 +154,24 @@
         };
         var pageIndex = 1, pageSize = 10;
         function apply(id, status) {
-            //TODO:update status
-            console.log(id + "," + status);
+            //update status
+            //console.log(id + "," + status);
+            if (id <= 0 || status <= 0) {
+                return;
+            }
+            layer.confirm("这个操作将要更新账单状态，是否继续？", function (index) {
+                var loading = layer.load(2);
+                $.post('@Url.Action("UpdateBillStatus")', { "id": id, "status": status }, function (data) {
+                    if (data.status == 200) {
+                        layer.msg("操作成功");
+                        location.reload();
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                    layer.close(loading);
+                });
+                layer.close(index);
+            });
         }
         function loadData(pageNum) {
             if (pageNum) {
@@ -173,11 +189,15 @@
                         switch (data.Data[i].BillStatus) {
                             case 1:
                                 _billStatus = "申请报销";
-                                btnText = '<button type="button" class="btn btn-success btn-sm" onclick="apply(' + data.Data[i].PKID + ',2)">确认报销</button>';
+                                btnText = '<button type="button" class="btn btn-danger btn-sm" onclick="apply(' + data.Data[i].PKID + ',3)">取消申请</button>&nbsp;<button type="button" class="btn btn-success btn-sm" onclick="apply(' + data.Data[i].PKID + ',2)">确认报销</button>';
                                 break;
                             case 2:
                                 _billStatus = "已报销";
                                 btnText = '<label>该账单已报销</label>';
+                                break;
+                            case 3:
+                                _billStatus = "已取消申请报销";
+                                btnText = '<label>该账单已取消申请报销，无需操作</label>';
                                 break;
                         }
                         var tml = '<tr>\

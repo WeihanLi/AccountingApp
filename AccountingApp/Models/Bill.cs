@@ -36,6 +36,7 @@ namespace AccountingApp.Models
         /// 0：新建
         /// 1：申请报销
         /// 2：已报销
+        /// 3：取消申请报销
         /// </summary>
         [Display(Name = "账单状态")]
         public int BillStatus { get; set; }

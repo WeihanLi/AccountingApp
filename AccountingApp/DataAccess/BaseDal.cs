@@ -58,7 +58,7 @@ namespace AccountingApp.DataAccess
             return await _dbEntity.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> UpdateAsyncy<TProperty>(T entity, params Expression<Func<T, TProperty>>[] propertyNames)
+        public async Task<bool> UpdateAsync<TProperty>(T entity, params Expression<Func<T, TProperty>>[] propertyNames)
         {
             entity.UpdatedTime = DateTime.Now;
             var entry = _dbEntity.Entry(entity);
