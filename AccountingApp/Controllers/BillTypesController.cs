@@ -52,7 +52,6 @@ namespace AccountingApp.Controllers
             if (ModelState.IsValid)
             {
                 billType.CreatedBy = User.Identity.Name;
-                billType.UpdatedBy = User.Identity.Name;
                 await BusinessHelper.BillTypeHelper.AddAsync(billType);
                 return RedirectToAction("Index");
             }
@@ -132,7 +131,7 @@ namespace AccountingApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await BusinessHelper.BillTypeHelper.DeleteAsync(t => t.PKID == id);
+            await BusinessHelper.BillTypeHelper.DeleteAsync(t => t.PKID == id,User.Identity.Name);
             return RedirectToAction("Index");
         }
     }

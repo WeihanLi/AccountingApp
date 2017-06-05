@@ -53,7 +53,6 @@ namespace AccountingApp.Controllers
                 if (ModelState.IsValid)
                 {
                     bill.CreatedBy = User.Identity.Name;
-                    bill.UpdatedBy = User.Identity.Name;
                     await BusinessHelper.BillHelper.AddAsync(bill);
                     return RedirectToAction("Index");
                 }
@@ -139,7 +138,7 @@ namespace AccountingApp.Controllers
         {
             try
             {
-                await BusinessHelper.BillHelper.DeleteAsync(m => m.PKID == id);
+                await BusinessHelper.BillHelper.DeleteAsync(m => m.PKID == id,User.Identity.Name);
                 return RedirectToAction("Index");
             }
             catch

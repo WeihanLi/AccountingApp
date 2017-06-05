@@ -18,6 +18,7 @@ namespace AccountingApp.DataAccess
 
         public async Task<T> AddAsync(T entity)
         {
+            entity.UpdatedBy = entity.CreatedBy;
             entity.CreatedTime = DateTime.Now;
             entity.UpdatedTime = DateTime.Now;
             _dbEntity.Set<T>().Add(entity);
@@ -33,6 +34,7 @@ namespace AccountingApp.DataAccess
         public async Task<bool> UpdateAsync(T entity)
         {
             entity.UpdatedTime = DateTime.Now;
+   
             // reslove the exception
             // cannot be tracked because another instance of this type with the same key is already being tracked
             // https://stackoverflow.com/questions/6033638/an-object-with-the-same-key-already-exists-in-the-objectstatemanager-the-object
@@ -55,6 +57,8 @@ namespace AccountingApp.DataAccess
             {
                 entry.Property(proName).IsModified = true;
             }
+            entry.Property(m => m.UpdatedBy).IsModified = true;
+            entry.Property(m => m.UpdatedTime).IsModified = true;
             return await _dbEntity.SaveChangesAsync() > 0;
         }
 
@@ -72,6 +76,8 @@ namespace AccountingApp.DataAccess
             {
                 entry.Property(proName).IsModified = true;
             }
+            entry.Property(m => m.UpdatedBy).IsModified = true;
+            entry.Property(m => m.UpdatedTime).IsModified = true;
             return await _dbEntity.SaveChangesAsync() > 0;
         }
 
@@ -120,7 +126,7 @@ namespace AccountingApp.DataAccess
             return await _dbEntity.Set<T>().AsNoTracking().CountAsync(whereLamdba);
         }
 
-        public async Task<bool> DeleteAsync(Expression<Func<T, bool>> whereLamdba)
+        public async Task<bool> DeleteAsync(Expression<Func<T, bool>> whereLamdba,string updatedBy)
         {
             var list = _dbEntity.Set<T>().Where(whereLamdba).ToList();
             if (list != null && list.Any())
@@ -128,6 +134,8 @@ namespace AccountingApp.DataAccess
                 for (int i = 0; i < list.Count(); i++)
                 {
                     list[i].IsDeleted = true;
+                    list[i].UpdatedBy = updatedBy;
+                    list[i].UpdatedTime = DateTime.Now;
                 }
                 return await _dbEntity.SaveChangesAsync() > 0;
             }
