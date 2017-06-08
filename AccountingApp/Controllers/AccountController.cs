@@ -15,6 +15,81 @@ namespace AccountingApp.Controllers
             _dbContext = dbEntity;
         }
 
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpPost, ActionName("UpdatePassword")]
+        public async Task<IActionResult> UpdatePasswordAsync(ViewModels.UpdatePasswordViewModel model)
+        {
+            var result = new HelperModels.JsonResultModel();
+            if (ModelState.IsValid)
+            {
+                var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == User.Identity.Name);
+                if(user == null)
+                {
+                    result.Status = HelperModels.JsonResultStatus.ResourceNotFound;
+                    result.Msg = "用户名不存在！";
+                    return Json(result);
+                }
+                if(!user.PasswordHash.Equals(Helper.SecurityHelper.SHA256_Encrypt(model.OldPassword)))
+                {
+                    result.Status = HelperModels.JsonResultStatus.RequestError;
+                    result.Msg = "原密码有误，请重试";
+                    return Json(result);
+                }
+                else
+                {
+                    user.PasswordHash = Helper.SecurityHelper.SHA256_Encrypt(model.NewPassword);
+                    var isSuccess = await BusinessHelper.UserHelper.UpdateAsync(user, u => u.PasswordHash);
+                    if(isSuccess)
+                    {
+                        await HttpContext.Authentication.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                        result.Msg = "更新成功";
+                        result.Status = HelperModels.JsonResultStatus.Success;
+                    }
+                    else
+                    {
+                        result.Msg = "更新失败";
+                        result.Status = HelperModels.JsonResultStatus.ProcessFail;
+                    }
+                }
+            }
+            return Json(result);
+        }
+
+        [HttpPost,ActionName("ValidateOldPassword")]
+        public async Task<IActionResult> ValidateOldPasswordAsync(string password)
+        {
+            var result = new HelperModels.JsonResultModel<bool>() { Data = false };
+            if(string.IsNullOrEmpty(password))
+            {
+                result.Status = HelperModels.JsonResultStatus.RequestError;
+                result.Msg = "原密码不能为空";
+                return Json(result);
+            }
+            var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == User.Identity.Name);
+            if (user == null)
+            {
+                result.Status = HelperModels.JsonResultStatus.ResourceNotFound;
+                result.Msg = "用户不存在！";
+                return Json(result);
+            }
+            if (!user.PasswordHash.Equals(Helper.SecurityHelper.SHA256_Encrypt(password)))
+            {
+                result.Status = HelperModels.JsonResultStatus.RequestError;
+                result.Msg = "原密码有误";
+            }
+            else
+            {
+                result.Data = true;
+                result.Msg = "密码正确";
+                result.Status = HelperModels.JsonResultStatus.Success;
+            }
+            return Json(result);
+        }
+
         /// <summary>
         /// 登录页面
         /// </summary>
@@ -22,7 +97,7 @@ namespace AccountingApp.Controllers
         [AllowAnonymous]
         public IActionResult Login()
         {
-            if(HttpContext.User.Identity.IsAuthenticated)
+            if(User.Identity.IsAuthenticated)
             {
                 return Redirect("/");
             }

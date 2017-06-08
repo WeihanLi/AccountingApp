@@ -1,0 +1,84 @@
+﻿@model AccountingApp.ViewModels.UpdatePasswordViewModel
+@{
+    ViewData["Title"] = "账户首页";
+}
+<style>
+    .form-control{
+        margin:1em;
+    }
+</style>
+<div class="table-wraper">
+    <div class="table-header">
+        <h3 class="table-title">我的账户</h3>
+    </div>
+    <div class="table-body" id="div_main">
+        <ul class="nav nav-tabs">
+            <li role="presentation"><a href="#div_modifyPass" data-toggle="tab">修改密码</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane  fade in active" id="div_modifyPass">
+                <form id="modifyPassForm" name="modifyPassForm" action="@Url.Action("UpdatePassword")" method="post">
+                    <div class="form-group">
+                        <input type="password" value="" id="oldPassword" placeholder="请输入原密码" class="form-control" min="6" max="20" required autofocus />
+                        <input type="password" value="" id="newPassword" placeholder="请输入新密码" class="form-control" min="6" max="20" required />
+                        <input type="password" value="" min="6" max="20" id="confirmPassword" placeholder="请确认密码" class="form-control" required />
+                    </div>
+                    <button type="button" id="btnUpdatePass" class="btn btn-default" style="margin-left:1em;">修改</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+<script>
+    $("#btnUpdatePass").click(function () {
+        var oldPass = $("#oldPassword").val();
+        if (!oldPass) {
+            layer.msg("原密码不能为空！");
+            return;
+        }
+        var newPass = $("#newPassword").val();
+        if (!newPass) {
+            layer.msg("新密码不能为空！");
+            return;
+        }
+        var newPass1 = $("#confirmPassword").val();
+        if (!newPass1) {
+            layer.msg("确认密码不能为空！");
+            return;
+        }
+        if (newPass != newPass1) {
+            layer.msg("确认密码与新密码不一致！");
+            return;
+        }
+        var isOldPassValid = false;
+        $.ajax({
+            url: '@Url.Action("ValidateOldPassword")',
+            async: false,
+            method: "POST",
+            data: { "password": oldPass },
+            success: function (data) {
+                isOldPassValid = data.data;
+            }
+        });
+        if (!isOldPassValid) {
+            layer.msg("原密码输入有误");
+            $("#oldPassword").val('');
+            $("#oldPassword").focus();
+            return;
+        }
+        $.post('@Url.Action("UpdatePassword")', {
+            "OldPassword": $("#oldPassword").val(),
+            "NewPassword": $("#newPassword").val(),
+            "ConfirmPassword": $("#confirmPassword").val()
+        }, function (data) {
+            if (data.status == 200) {
+                layer.msg('密码修改成功，请重新登录');
+                location.href = '@Url.Action("Login")';
+            } else {
+                layer.msg("密码修改失败！请稍后重试");
+            }
+        });
+    });
+</script>
+}
