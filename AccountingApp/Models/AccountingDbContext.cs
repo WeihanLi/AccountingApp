@@ -18,6 +18,11 @@ namespace AccountingApp.Models
         /// <param name="modelBuilder">modelBuilder</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //TableName
+            modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<BillType>().ToTable("BillType");
+            modelBuilder.Entity<Bill>().ToTable("Bill");
+
             //Primary Key
             modelBuilder.Entity<User>().HasKey(m => m.PKID);
             modelBuilder.Entity<BillType>().HasKey(m => m.PKID);
@@ -25,8 +30,8 @@ namespace AccountingApp.Models
             //Identity
             modelBuilder.Entity<User>().Property(m => m.PKID).ValueGeneratedOnAdd();
             modelBuilder.Entity<BillType>().Property(m => m.PKID).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Bill>().Property(m => m.PKID).ValueGeneratedOnAdd();
-
+            modelBuilder.Entity<Bill>().Property(m => m.PKID).ValueGeneratedOnAdd();    
+            
             base.OnModelCreating(modelBuilder);
         }
 

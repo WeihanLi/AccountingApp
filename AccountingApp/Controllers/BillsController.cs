@@ -6,6 +6,7 @@ using AccountingApp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using AccountingApp.Helper;
+using MvcSimplePager;
 
 namespace AccountingApp.Controllers
 {
@@ -23,7 +24,7 @@ namespace AccountingApp.Controllers
 
         [HttpGet]
         [ActionName("List")]
-        public async Task<ActionResult> ListAsync(int pageIndex = 10, int pageSize = 20)
+        public async Task<ActionResult> ListAsync(int pageIndex = 1, int pageSize = 20)
         {
             Newtonsoft.Json.JsonSerializerSettings setting = new Newtonsoft.Json.JsonSerializerSettings()
             {
@@ -33,6 +34,30 @@ namespace AccountingApp.Controllers
             var data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => !b.IsDeleted, b => b.CreatedTime);
             var list = data.ToPagedListModel(pageIndex, pageSize, totalCount);
             return Json(list, setting);
+        }
+
+        public ActionResult NewIndex()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// 账单列表
+        /// </summary>
+        /// <param name="pageIndex">页码索引</param>
+        /// <param name="pageSize">每页数据量</param>
+        /// <returns></returns>
+        [HttpGet]
+        [ActionName("BillsList")]
+        public async Task<ActionResult> BillsListAsync(int pageIndex = 1, int pageSize = 10)
+        {
+            int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(b => !b.IsDeleted);
+            List<Bill> data = new List<Bill>();
+            if (totalCount>0)
+            {
+                data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => !b.IsDeleted, b => b.CreatedTime);
+            }
+            return View(data.ToPagedList(pageIndex, pageSize, totalCount));
         }
 
         // GET: Bill/Create
@@ -92,13 +117,13 @@ namespace AccountingApp.Controllers
             }
         }
 
-        [HttpPost,ActionName("UpdateBillStatus")]
         /// <summary>
         /// 更新账单状态
         /// </summary>
         /// <param name="id">账单id</param>
         /// <param name="status">账单状态</param>
         /// <returns></returns>
+        [HttpPost, ActionName("UpdateBillStatus")]
         public async Task<IActionResult> UpdateBillStatusAsync(int id, int status)
         {
             var result = new HelperModels.JsonResultModel();

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AccountingApp.Models;
+using EntityFramework.DbDescriptionHelper;
 
 namespace AccountingApp.DataAccess
 {
@@ -28,8 +30,10 @@ namespace AccountingApp.DataAccess
                 new Models.BillType{ TypeName = "生活费用", TypeDesc = "水电燃气费等",CreatedBy = "System",CreatedTime = DateTime.Now,UpdatedBy = "System",UpdatedTime=DateTime.Now },
                 new Models.BillType{ TypeName = "家庭费用", TypeDesc = "家用设施家用电器等",CreatedBy = "System",CreatedTime = DateTime.Now,UpdatedBy = "System",UpdatedTime=DateTime.Now },
             };
-            context.AddRange(types);
+            context.BillTypes.AddRange(types);
             context.SaveChanges();
+            // Generate database description
+            new SqlServerDbDescriptionInitializer().GenerateDbDescription(context);
         }
     }
 }
