@@ -128,7 +128,7 @@ namespace AccountingApp.Controllers
                     if (user.PasswordHash.Equals(Helper.SecurityHelper.SHA256_Encrypt(model.Password)))
                     {
                         var u = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user.Username) }, CookieAuthenticationDefaults.AuthenticationScheme));
-                        await HttpContext.Authentication.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, u);
+                        await HttpContext.Authentication.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, u,new Microsoft.AspNetCore.Http.Authentication.AuthenticationProperties { IsPersistent = model.RememberMe, AllowRefresh = true });
                         //
                         result.Msg = "登录成功";
                         result.Status = HelperModels.JsonResultStatus.Success;
