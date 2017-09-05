@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 
 namespace AccountingApp
 {
@@ -31,8 +32,30 @@ namespace AccountingApp
         {
             // Add db service
             services.AddDbContext<Models.AccountingDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            //Authentication
-            services.AddAuthentication();
+
+
+            //app.UseCookieAuthentication(new CookieAuthenticationOptions {
+            //    LoginPath = "/Account/Login",
+            //    LogoutPath = "/Account/LogOut",
+            //    AccessDeniedPath = "/Account/Login",
+            //    AuthenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme,
+            //    CookieHttpOnly = true,
+            //    AutomaticAuthenticate = true,
+            //    AutomaticChallenge = true
+            //});
+
+            //Cookie Authentication
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.AccessDeniedPath = "/Account/Login";
+                    options.LoginPath = "/Account/Login";                    
+                    options.LogoutPath = "/Account/LogOut";
+
+                    // Cookie settings
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                });
             // Add framework services.
             services.AddMvc();
             //DbContext
@@ -61,17 +84,8 @@ namespace AccountingApp
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            // Add ASP.NET Core Identity
-            app.UseCookieAuthentication(new CookieAuthenticationOptions {
-                LoginPath = "/Account/Login",
-                LogoutPath = "/Account/LogOut",
-                AccessDeniedPath = "/Account/Login",
-                AuthenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-                CookieHttpOnly = true,
-                AutomaticAuthenticate = true,
-                AutomaticChallenge = true
-            });
-
+            // Add ASP.NET Core authentication
+            app.UseAuthentication();
             app.UseStaticFiles();
 
             app.UseMvcWithDefaultRoute();

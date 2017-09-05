@@ -6,7 +6,7 @@ using AccountingApp.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using AccountingApp.Helper;
-using MvcSimplePager;
+using WeihanLi.AspNetMvc.MvcSimplePager;
 
 namespace AccountingApp.Controllers
 {
@@ -19,7 +19,8 @@ namespace AccountingApp.Controllers
         // GET: Bill
         public ActionResult Index()
         {
-            return View();
+            // 新版首页，新分页
+            return View("NewIndex");
         }
 
         [HttpGet]
@@ -34,11 +35,6 @@ namespace AccountingApp.Controllers
             var data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => !b.IsDeleted, b => b.CreatedTime);
             var list = data.ToPagedListModel(pageIndex, pageSize, totalCount);
             return Json(list, setting);
-        }
-
-        public ActionResult NewIndex()
-        {
-            return View();
         }
 
         /// <summary>

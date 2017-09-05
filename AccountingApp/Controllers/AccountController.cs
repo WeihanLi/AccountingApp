@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
 namespace AccountingApp.Controllers
 {
@@ -27,13 +28,13 @@ namespace AccountingApp.Controllers
             if (ModelState.IsValid)
             {
                 var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == User.Identity.Name);
-                if(user == null)
+                if (user == null)
                 {
                     result.Status = HelperModels.JsonResultStatus.ResourceNotFound;
                     result.Msg = "用户名不存在！";
                     return Json(result);
                 }
-                if(!user.PasswordHash.Equals(Helper.SecurityHelper.SHA256_Encrypt(model.OldPassword)))
+                if (!user.PasswordHash.Equals(Helper.SecurityHelper.SHA256_Encrypt(model.OldPassword)))
                 {
                     result.Status = HelperModels.JsonResultStatus.RequestError;
                     result.Msg = "原密码有误，请重试";
@@ -43,9 +44,9 @@ namespace AccountingApp.Controllers
                 {
                     user.PasswordHash = Helper.SecurityHelper.SHA256_Encrypt(model.NewPassword);
                     var isSuccess = await BusinessHelper.UserHelper.UpdateAsync(user, u => u.PasswordHash);
-                    if(isSuccess)
+                    if (isSuccess)
                     {
-                        await HttpContext.Authentication.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                         result.Msg = "更新成功";
                         result.Status = HelperModels.JsonResultStatus.Success;
                     }
@@ -59,11 +60,11 @@ namespace AccountingApp.Controllers
             return Json(result);
         }
 
-        [HttpPost,ActionName("ValidateOldPassword")]
+        [HttpPost, ActionName("ValidateOldPassword")]
         public async Task<IActionResult> ValidateOldPasswordAsync(string password)
         {
             var result = new HelperModels.JsonResultModel<bool>() { Data = false };
-            if(string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(password))
             {
                 result.Status = HelperModels.JsonResultStatus.RequestError;
                 result.Msg = "原密码不能为空";
@@ -97,7 +98,7 @@ namespace AccountingApp.Controllers
         [AllowAnonymous]
         public IActionResult Login()
         {
-            if(User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
                 return Redirect("/");
             }
@@ -128,7 +129,7 @@ namespace AccountingApp.Controllers
                     if (user.PasswordHash.Equals(Helper.SecurityHelper.SHA256_Encrypt(model.Password)))
                     {
                         var u = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user.Username) }, CookieAuthenticationDefaults.AuthenticationScheme));
-                        await HttpContext.Authentication.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, u,new Microsoft.AspNetCore.Http.Authentication.AuthenticationProperties { IsPersistent = model.RememberMe, AllowRefresh = true });
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, u, new AuthenticationProperties { IsPersistent = model.RememberMe, AllowRefresh = true });
                         //
                         result.Msg = "登录成功";
                         result.Status = HelperModels.JsonResultStatus.Success;
@@ -155,7 +156,7 @@ namespace AccountingApp.Controllers
         [ActionName("LogOut")]
         public async Task<IActionResult> LogOutAsync()
         {
-            await HttpContext.Authentication.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return Redirect("Login");
         }
     }
