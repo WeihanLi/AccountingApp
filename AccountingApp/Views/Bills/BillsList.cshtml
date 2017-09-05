@@ -94,7 +94,7 @@
         }
         </tbody>
     </table>
-    @Html.Pager(Model.Pager,pageIndex => String.Format("javascript:loadData({0})",pageIndex))   
+    @Html.Pager(Model.Pager,pageIndex => String.Format("javascript:loadData({0})",pageIndex),"_PagerPartial",displayMode: PagingDisplayMode.IfNeeded)   
 }
 else
 {
