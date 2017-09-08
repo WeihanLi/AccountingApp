@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
+using WeihanLi.AspNetMvc.AccessControlHelper;
 
 namespace AccountingApp.Controllers
 {
@@ -96,6 +97,7 @@ namespace AccountingApp.Controllers
         /// </summary>
         /// <returns></returns>
         [AllowAnonymous]
+        [NoAccessControl]
         public IActionResult Login()
         {
             if (User.Identity.IsAuthenticated)
@@ -113,6 +115,7 @@ namespace AccountingApp.Controllers
         [ActionName("Logon")]
         [HttpPost]
         [AllowAnonymous]
+        [NoAccessControl]
         public async Task<IActionResult> LogonAsync(ViewModels.LogonViewModel model)
         {
             var result = new HelperModels.JsonResultModel();

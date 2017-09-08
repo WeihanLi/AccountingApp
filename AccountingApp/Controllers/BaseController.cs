@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WeihanLi.AspNetMvc.AccessControlHelper;
 
 namespace AccountingApp.Controllers
 {
     [Authorize]
+    [AccessControl]
     public class BaseController:Controller
     {
         protected readonly AccountingDbContext _context;

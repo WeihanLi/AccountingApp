@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AccountingApp.Helper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -89,6 +90,12 @@ namespace AccountingApp
             app.UseStaticFiles();
 
             app.UseMvcWithDefaultRoute();
+            // 权限控制
+            app.UseAccessControlHelper(option =>
+            {
+                option.ActionAccessStrategy = new AccountingActionAccessStrategy();
+                option.ControlAccessStrategy = new AccountingControlAccessStrategy();
+            });
             // Initialize
             DataAccess.DbInitializer.Initialize(context);
         }

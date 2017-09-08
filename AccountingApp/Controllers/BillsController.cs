@@ -1,11 +1,13 @@
-using System;
+using AccountingApp.Helper;
+using AccountingApp.Models;
+using Microsoft.AspNetCore.Mvc;
+using NPOI.HSSF.UserModel;
+using NPOI.SS.UserModel;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AccountingApp.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using AccountingApp.Helper;
+using NPOI.XSSF.UserModel;
 using WeihanLi.AspNetMvc.MvcSimplePager;
 
 namespace AccountingApp.Controllers
@@ -21,6 +23,52 @@ namespace AccountingApp.Controllers
         {
             // 新版首页，新分页
             return View("NewIndex");
+        }
+
+        public async Task<ActionResult> ExportBillsReport()
+        {
+            var bills = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => !b.IsDeleted, b => b.CreatedTime);
+            if (bills != null && bills.Any())
+            {
+                IWorkbook workbook = new HSSFWorkbook();
+                ISheet sheet = workbook.CreateSheet("账单记录");
+                // export excel
+                int i = 0;
+                var headRow = sheet.CreateRow(0);
+                headRow.CreateCell(0, CellType.String).SetCellValue("账单标题");
+                headRow.CreateCell(1, CellType.String).SetCellValue("账单类型");
+                headRow.CreateCell(2, CellType.String).SetCellValue("账单金额");
+                headRow.CreateCell(3, CellType.String).SetCellValue("账单详情");
+                headRow.CreateCell(4, CellType.String).SetCellValue("创建人");
+                headRow.CreateCell(5, CellType.String).SetCellValue("创建时间");
+
+                foreach (var bill in bills)
+                {
+                    i++;
+                    var row = sheet.CreateRow(i);
+                    row.CreateCell(0, CellType.String).SetCellValue(bill.BillTitle);
+                    row.CreateCell(1, CellType.String).SetCellValue(bill.AccountBillType.TypeName);
+                    row.CreateCell(2, CellType.String).SetCellValue(bill.BillFee.ToString("0.00"));
+                    row.CreateCell(3, CellType.String).SetCellValue(bill.BillDetails);
+                    row.CreateCell(4, CellType.String).SetCellValue(bill.CreatedBy);
+                    row.CreateCell(5, CellType.String).SetCellValue(bill.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                }
+
+                // 自动调整单元格的宽度
+                sheet.AutoSizeColumn(0);
+                sheet.AutoSizeColumn(1);
+                sheet.AutoSizeColumn(2);
+                sheet.AutoSizeColumn(3);
+                sheet.AutoSizeColumn(4);
+                sheet.AutoSizeColumn(5);
+                var stream = new MemoryStream();
+                workbook.Write(stream);
+                return File(stream.ToArray(), "application/octet-stream","Bills.xls");
+            }
+            else
+            {
+                return Content("没有数据需要导出");
+            }
         }
 
         [HttpGet]
@@ -49,7 +97,7 @@ namespace AccountingApp.Controllers
         {
             int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(b => !b.IsDeleted);
             List<Bill> data = new List<Bill>();
-            if (totalCount>0)
+            if (totalCount > 0)
             {
                 data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => !b.IsDeleted, b => b.CreatedTime);
             }
@@ -65,7 +113,7 @@ namespace AccountingApp.Controllers
         }
 
         // POST: Bill/Create
-        [HttpPost,ActionName("Create")]
+        [HttpPost, ActionName("Create")]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> CreateAsync([Bind("BillTitle,BillDetails,BillType,BillFee")]Bill bill)
         {
@@ -89,10 +137,10 @@ namespace AccountingApp.Controllers
         }
 
         // GET: Bill/Edit/5
-        [HttpGet,ActionName("Edit")]
+        [HttpGet, ActionName("Edit")]
         public async Task<ActionResult> EditAsync(int id)
         {
-            ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => !b.IsDeleted, b => b.TypeName, true),id);
+            ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => !b.IsDeleted, b => b.TypeName, true), id);
             return View(await BusinessHelper.BillHelper.FetchAsync(id));
         }
 
@@ -104,7 +152,7 @@ namespace AccountingApp.Controllers
             try
             {
                 bill.UpdatedBy = User.Identity.Name;
-                await BusinessHelper.BillHelper.UpdateAsync(bill, "BillTitle","BillDetails","BillType","BillFee", "UpdatedBy", "UpdatedTime");
+                await BusinessHelper.BillHelper.UpdateAsync(bill, "BillTitle", "BillDetails", "BillType", "BillFee", "UpdatedBy", "UpdatedTime");
                 return RedirectToAction("Index");
             }
             catch
@@ -140,12 +188,12 @@ namespace AccountingApp.Controllers
         // GET: Bill/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
-            if(id<=0)
+            if (id <= 0)
             {
                 return NotFound();
             }
             var bill = await BusinessHelper.BillHelper.FetchAsync(id);
-            if(bill == null)
+            if (bill == null)
             {
                 return NotFound();
             }
@@ -159,7 +207,7 @@ namespace AccountingApp.Controllers
         {
             try
             {
-                await BusinessHelper.BillHelper.DeleteAsync(m => m.PKID == id,User.Identity.Name);
+                await BusinessHelper.BillHelper.DeleteAsync(m => m.PKID == id, User.Identity.Name);
                 return RedirectToAction("Index");
             }
             catch

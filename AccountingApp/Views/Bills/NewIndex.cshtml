@@ -6,7 +6,11 @@
         <h3 class="table-title">@ViewData["Title"]</h3>
     </div>
     <p>
-        <a asp-action="Create"><h4>添加新账单</h4></a>
+        <a asp-action="Create" style="font-size: 1.2em;font-weight: bold">添加新账单</a> &nbsp; 
+        @using (Html.SparkContainer("button", new { type = "button", id = "btnExportBills", @class = "btn btn-success" },$"{User.Identity.Name}-signin"))
+        {
+            @:导出账单
+        }
     </p>
     <div class="table-body" id="div_main">
         
@@ -15,6 +19,10 @@
 @section Scripts{
     <script>
         var pageIndex = 1, pageSize = 10;
+        // export
+        $("#btnExportBills").click(function() {
+            window.open('@Url.Action("ExportBillsReport")',"导出账单");
+        });
 
         function apply(id, status) {
             if (id <= 0 || status <= 0) {
@@ -47,7 +55,7 @@
             var loading = layer.load(2);
             $.get('@Url.Action("BillsList")',
                 { "pageIndex": pageIndex, "pageSize": pageSize },
-                function (data, status) {
+                function(data, status) {
                     layer.close(loading);
                     if (status == "success" && data) {
                         $("#div_main").html(data);
