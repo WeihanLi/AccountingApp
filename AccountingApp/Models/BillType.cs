@@ -6,7 +6,7 @@ namespace AccountingApp.Models
     /// <summary>
     /// 账单类型
     /// </summary>
-    [TableDescription("账单类型")]
+    [TableDescription("BillTypes","账单类型")]
     public class BillType : BaseModel
     {
         /// <summary>

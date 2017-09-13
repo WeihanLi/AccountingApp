@@ -6,7 +6,7 @@ namespace AccountingApp.Models
     /// <summary>
     /// 账单
     /// </summary>
-    [TableDescription("账单")]
+    [TableDescription("Bills","账单")]
     public class Bill : BaseModel
     {
         /// <summary>

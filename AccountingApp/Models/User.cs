@@ -5,7 +5,7 @@ namespace AccountingApp.Models
     /// <summary>
     /// 用户
     /// </summary>
-    [TableDescription("账单用户表")]
+    [TableDescription("Users","账单用户表")]
     public class User : BaseModel
     {
         /// <summary>

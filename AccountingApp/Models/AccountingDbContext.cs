@@ -19,9 +19,9 @@ namespace AccountingApp.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //TableName
-            modelBuilder.Entity<User>().ToTable("User");
-            modelBuilder.Entity<BillType>().ToTable("BillType");
-            modelBuilder.Entity<Bill>().ToTable("Bill");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<BillType>().ToTable("BillTypes");
+            modelBuilder.Entity<Bill>().ToTable("Bills");
 
             //Primary Key
             modelBuilder.Entity<User>().HasKey(m => m.PKID);
