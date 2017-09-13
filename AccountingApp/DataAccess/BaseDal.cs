@@ -98,11 +98,11 @@ namespace AccountingApp.DataAccess
             int offset = (pageIndex - 1) * pageSize;
             if (isAsc)
             {
-                return await _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba).Skip(offset).Take(pageSize).OrderBy(orderbyLambda).ToListAsync();
+                return await _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba).OrderBy(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
             }
             else
             {
-                return await _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba).Skip(offset).Take(pageSize).OrderByDescending(orderbyLambda).ToListAsync();
+                return await _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba).OrderByDescending(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
             }
         }
 
