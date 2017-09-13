@@ -53,11 +53,11 @@ namespace AccountingApp.DataAccess
             List<Bill> data = null;
             if (isAsc)
             {
-                data =  await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba).Skip(offset).Take(pageSize).OrderBy(orderbyLambda).ToListAsync();
+                data =  await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba).OrderBy(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
             }
             else
             {
-                data =  await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba).Skip(offset).Take(pageSize).OrderByDescending(orderbyLambda).ToListAsync();
+                data =  await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba).OrderByDescending(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
             }
             var types = _dbEntity.Set<BillType>().AsNoTracking().Where(t => !t.IsDeleted);
             foreach (var item in data)
