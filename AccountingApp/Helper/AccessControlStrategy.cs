@@ -8,7 +8,7 @@ namespace AccountingApp.Helper
     {
         public bool IsControlCanAccess(string accessKey)
         {
-            if (!String.IsNullOrWhiteSpace(accessKey) && accessKey.Contains("liweihan"))
+            if (!String.IsNullOrWhiteSpace(accessKey) && (accessKey.Contains("liweihan")|| accessKey.Contains("heyafei")|| accessKey.Contains("zoushirong")))
             {
                 return true;
             }
