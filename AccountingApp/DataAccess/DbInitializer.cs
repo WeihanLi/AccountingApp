@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AccountingApp.Models;
-using EntityFramework.DbDescriptionHelper;
+using WeihanLi.EntityFramework.DbDescriptionHelper;
 
 namespace AccountingApp.DataAccess
 {

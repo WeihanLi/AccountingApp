@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using EntityFramework.DbDescriptionHelper;
+using WeihanLi.EntityFramework.DbDescriptionHelper;
 
 namespace AccountingApp.Models
 {

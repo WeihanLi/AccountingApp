@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetCore.NPOI" Version="1.0.1" />
-    <PackageReference Include="EntityFramework.DbDescriptionHelper" Version="1.0.0-rc" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.0" />
@@ -26,6 +25,7 @@
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="WeihanLi.AspNetMvc.AccessControlHelper" Version="1.0.0" />
     <PackageReference Include="WeihanLi.AspNetMvc.MvcSimplePager" Version="1.0.0" />
+    <PackageReference Include="WeihanLi.EntityFramework.DbDescriptionHelper" Version="0.8.0" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
