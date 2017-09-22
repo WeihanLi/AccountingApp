@@ -32,18 +32,10 @@ namespace AccountingApp
         public void ConfigureServices(IServiceCollection services)
         {
             // Add db service
-            services.AddDbContext<Models.AccountingDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-
-            //app.UseCookieAuthentication(new CookieAuthenticationOptions {
-            //    LoginPath = "/Account/Login",
-            //    LogoutPath = "/Account/LogOut",
-            //    AccessDeniedPath = "/Account/Login",
-            //    AuthenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme,
-            //    CookieHttpOnly = true,
-            //    AutomaticAuthenticate = true,
-            //    AutomaticChallenge = true
-            //});
+            // SqlServer
+            //services.AddDbContext<Models.AccountingDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("SqlServerConnection")));
+            // MySql
+            services.AddDbContext<Models.AccountingDbContext>(options => options.UseMySql(Configuration.GetConnectionString("MySqlConnection")));
 
             //Cookie Authentication
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
