@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using WeihanLi.EntityFramework.DbDescriptionHelper;
 
 namespace AccountingApp.Models
@@ -45,7 +46,7 @@ namespace AccountingApp.Models
         /// 3：取消申请报销
         /// </summary>
         [Display(Name = "账单状态")]
-        [ColumnDescription("账单状态")]
+        [ColumnDescription("账单状态(0：新建,1：申请报销,2：已报销,3：取消申请报销)")]
         public int BillStatus { get; set; }
 
         [System.ComponentModel.DataAnnotations.Schema.NotMapped]

@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using WeihanLi.AspNetMvc.AccessControlHelper;
+using WeihanLi.Common.Helpers;
 
 namespace AccountingApp.Controllers
 {
@@ -35,7 +36,7 @@ namespace AccountingApp.Controllers
                     result.Msg = "用户名不存在！";
                     return Json(result);
                 }
-                if (!user.PasswordHash.Equals(Helper.SecurityHelper.SHA256_Encrypt(model.OldPassword)))
+                if (!user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(model.OldPassword)))
                 {
                     result.Status = HelperModels.JsonResultStatus.RequestError;
                     result.Msg = "原密码有误，请重试";
@@ -43,7 +44,7 @@ namespace AccountingApp.Controllers
                 }
                 else
                 {
-                    user.PasswordHash = Helper.SecurityHelper.SHA256_Encrypt(model.NewPassword);
+                    user.PasswordHash = SecurityHelper.SHA256_Encrypt(model.NewPassword);
                     var isSuccess = await BusinessHelper.UserHelper.UpdateAsync(user, u => u.PasswordHash);
                     if (isSuccess)
                     {
@@ -78,7 +79,7 @@ namespace AccountingApp.Controllers
                 result.Msg = "用户不存在！";
                 return Json(result);
             }
-            if (!user.PasswordHash.Equals(Helper.SecurityHelper.SHA256_Encrypt(password)))
+            if (!user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(password)))
             {
                 result.Status = HelperModels.JsonResultStatus.RequestError;
                 result.Msg = "原密码有误";
@@ -129,7 +130,7 @@ namespace AccountingApp.Controllers
                 }
                 else
                 {
-                    if (user.PasswordHash.Equals(Helper.SecurityHelper.SHA256_Encrypt(model.Password)))
+                    if (user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(model.Password)))
                     {
                         var u = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user.Username) }, CookieAuthenticationDefaults.AuthenticationScheme));
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, u, new AuthenticationProperties { IsPersistent = model.RememberMe, AllowRefresh = true });
