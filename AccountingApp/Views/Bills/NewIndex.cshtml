@@ -7,7 +7,7 @@
     </div>
     <p>
         <a asp-action="Create" style="font-size: 1.2em;font-weight: bold">添加新账单</a> &nbsp; 
-        @using (Html.SparkContainer("button", new { type = "button", id = "btnExportBills", @class = "btn btn-success" },$"{User.Identity.Name}-signin"))
+        @using (Html.SparkContainer("button", new { type = "button", id = "btnExportBills", @class = "btn btn-success" },User.Identity.Name))
         {
             @:导出账单
         }

@@ -18,7 +18,16 @@ namespace AccountingApp.Models
         public string BillTitle { get; set; }
 
         /// <summary>
+        /// 账单简介
+        /// </summary>
+        [Display(Name = "账单简介")]
+        [ColumnDescription("账单简介")]
+        public string BillDescription { get; set; }
+
+        /// <summary>
         /// 账单详情
+        /// 账单缴纳详情 json
+        /// [{"PersonName":"liweihan","PayMoney":200},{"PersonName":"heyafei","PayMoney":100}]
         /// </summary>
         [Display(Name = "账单详情")]
         [ColumnDescription("账单详情")]

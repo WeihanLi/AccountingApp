@@ -6,13 +6,10 @@ namespace AccountingApp.Helper
 {
     public class AccountingControlAccessStrategy : IControlAccessStrategy
     {
+        private string[] AdminUsers = new[] {"liweihan", "heyafei", "zoushirong"};
         public bool IsControlCanAccess(string accessKey)
         {
-            if (!String.IsNullOrWhiteSpace(accessKey) && (accessKey.Contains("liweihan")|| accessKey.Contains("heyafei")|| accessKey.Contains("zoushirong")))
-            {
-                return true;
-            }
-            return false;
+            return AdminUsers.IndexOf(accessKey) > 0;
         }
     }
 

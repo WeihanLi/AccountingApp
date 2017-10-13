@@ -1,3 +1,4 @@
+using System;
 using AccountingApp.Helper;
 using AccountingApp.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -7,8 +8,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AccountingApp.ViewModels;
 using NPOI.XSSF.UserModel;
 using WeihanLi.AspNetMvc.MvcSimplePager;
+using WeihanLi.Common.Helpers;
 
 namespace AccountingApp.Controllers
 {
@@ -27,7 +30,7 @@ namespace AccountingApp.Controllers
 
         public async Task<ActionResult> ExportBillsReport()
         {
-            var bills = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => !b.IsDeleted, b => b.CreatedTime);
+            var bills = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => true, b => b.CreatedTime);
             if (bills != null && bills.Any())
             {
                 IWorkbook workbook = new HSSFWorkbook();
@@ -38,6 +41,7 @@ namespace AccountingApp.Controllers
                 headRow.CreateCell(0, CellType.String).SetCellValue("账单标题");
                 headRow.CreateCell(1, CellType.String).SetCellValue("账单类型");
                 headRow.CreateCell(2, CellType.String).SetCellValue("账单金额");
+                headRow.CreateCell(3, CellType.String).SetCellValue("账单描述");
                 headRow.CreateCell(3, CellType.String).SetCellValue("账单详情");
                 headRow.CreateCell(4, CellType.String).SetCellValue("创建人");
                 headRow.CreateCell(5, CellType.String).SetCellValue("创建时间");
@@ -49,9 +53,10 @@ namespace AccountingApp.Controllers
                     row.CreateCell(0, CellType.String).SetCellValue(bill.BillTitle);
                     row.CreateCell(1, CellType.String).SetCellValue(bill.AccountBillType.TypeName);
                     row.CreateCell(2, CellType.String).SetCellValue(bill.BillFee.ToString("0.00"));
-                    row.CreateCell(3, CellType.String).SetCellValue(bill.BillDetails);
-                    row.CreateCell(4, CellType.String).SetCellValue(bill.CreatedBy);
-                    row.CreateCell(5, CellType.String).SetCellValue(bill.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                    row.CreateCell(3, CellType.String).SetCellValue(bill.BillDescription);
+                    row.CreateCell(4, CellType.String).SetCellValue(bill.BillDetails);
+                    row.CreateCell(5, CellType.String).SetCellValue(bill.CreatedBy);
+                    row.CreateCell(6, CellType.String).SetCellValue(bill.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss"));
                 }
 
                 // 自动调整单元格的宽度
@@ -61,9 +66,10 @@ namespace AccountingApp.Controllers
                 sheet.AutoSizeColumn(3);
                 sheet.AutoSizeColumn(4);
                 sheet.AutoSizeColumn(5);
+                sheet.AutoSizeColumn(6);
                 var stream = new MemoryStream();
                 workbook.Write(stream);
-                return File(stream.ToArray(), "application/octet-stream","Bills.xls");
+                return File(stream.ToArray(), "application/octet-stream", "Bills.xls");
             }
             else
             {
@@ -79,8 +85,8 @@ namespace AccountingApp.Controllers
             {
                 DateFormatString = "yyyy-MM-dd HH:mm:ss"
             };
-            int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(b => !b.IsDeleted);
-            var data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => !b.IsDeleted, b => b.CreatedTime);
+            int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(b => true);
+            var data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => true, b => b.CreatedTime);
             var list = data.ToPagedListModel(pageIndex, pageSize, totalCount);
             return Json(list, setting);
         }
@@ -95,11 +101,11 @@ namespace AccountingApp.Controllers
         [ActionName("BillsList")]
         public async Task<ActionResult> BillsListAsync(int pageIndex = 1, int pageSize = 10)
         {
-            int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(b => !b.IsDeleted);
+            int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(b => true);
             List<Bill> data = new List<Bill>();
             if (totalCount > 0)
             {
-                data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => !b.IsDeleted, b => b.CreatedTime);
+                data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => true, b => b.CreatedTime);
             }
             return View(data.ToPagedList(pageIndex, pageSize, totalCount));
         }
@@ -108,30 +114,55 @@ namespace AccountingApp.Controllers
         [ActionName("Create")]
         public async Task<ActionResult> CreateAsync()
         {
-            ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => !b.IsDeleted, b => b.TypeName, true));
+            ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
+            var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
+            ViewData["Users"] = user.Select(u => u.Username);
             return View();
         }
 
         // POST: Bill/Create
         [HttpPost, ActionName("Create")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> CreateAsync([Bind("BillTitle,BillDetails,BillType,BillFee")]Bill bill)
+        public async Task<ActionResult> CreateAsync([Bind("BillTitle,BillDescription,BillDetails,BillType,BillFee")]Bill bill)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
+                    var items = ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(bill.BillDetails);
+                    if (items.Sum(t => t.PayMoney) != bill.BillFee)
+                    {
+                        ModelState.AddModelError("BillFee", "每个人实付金额与总金额不符，请检查");
+                        ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
+                        var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
+                        ViewData["Users"] = user.Select(u => u.Username);
+                        ViewData["ErrorMsg"] = "每个人实付金额与总金额不符，请检查";
+                        return View();
+                    }
                     bill.CreatedBy = User.Identity.Name;
-                    await BusinessHelper.BillHelper.AddAsync(bill);
+                    var res = await BusinessHelper.BillHelper.AddAsync(bill);
+                    if (res != null)
+                    {
+                        var billItems = items.Select(t => new BillPayItem { BillId = res.PKID, CreatedBy = User.Identity.Name, PayMoney = t.PayMoney, PersonName = t.PersonName }).Where(b => b.PayMoney > 0).ToList();
+                        //保存到数据库
+                        await BusinessHelper.BillPayItemHelper.AddAsync(billItems);
+                    }
                     return RedirectToAction("Index");
                 }
                 else
                 {
+                    ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
+                    var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
+                    ViewData["Users"] = user.Select(u => u.Username);
+                    ViewData["ErrorMsg"] = "请求参数不合法";
                     return View();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
+                var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
+                ViewData["Users"] = user.Select(u => u.Username);
                 return View();
             }
         }
@@ -140,23 +171,24 @@ namespace AccountingApp.Controllers
         [HttpGet, ActionName("Edit")]
         public async Task<ActionResult> EditAsync(int id)
         {
-            ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => !b.IsDeleted, b => b.TypeName, true), id);
+            ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true), id);
             return View(await BusinessHelper.BillHelper.FetchAsync(id));
         }
 
         // POST: Bill/Edit/5
         [HttpPost, ActionName("Edit")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> EditAsync([Bind("BillTitle,BillDetails,BillType,BillFee,PKID")]Bill bill)
+        public async Task<ActionResult> EditAsync([Bind("BillTitle,BillDescription,BillType,PKID")]Bill bill)
         {
             try
             {
                 bill.UpdatedBy = User.Identity.Name;
-                await BusinessHelper.BillHelper.UpdateAsync(bill, "BillTitle", "BillDetails", "BillType", "BillFee", "UpdatedBy", "UpdatedTime");
+                await BusinessHelper.BillHelper.UpdateAsync(bill, "BillTitle", "BillType", "BillDescription", "UpdatedBy", "UpdatedTime");
                 return RedirectToAction("Index");
             }
             catch
             {
+                ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true), bill.PKID);
                 return View();
             }
         }
@@ -207,12 +239,12 @@ namespace AccountingApp.Controllers
         {
             try
             {
-                await BusinessHelper.BillHelper.DeleteAsync(m => m.PKID == id, User.Identity.Name);
+                await Task.WhenAll(BusinessHelper.BillHelper.DeleteAsync(m => m.PKID == id, User.Identity.Name), BusinessHelper.BillPayItemHelper.DeleteAsync(t => t.BillId == id, User.Identity.Name));
                 return RedirectToAction("Index");
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                return RedirectToAction("Index");
             }
         }
     }

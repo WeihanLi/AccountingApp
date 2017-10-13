@@ -19,11 +19,23 @@ namespace AccountingApp.DataAccess
         public async Task<T> AddAsync(T entity)
         {
             entity.UpdatedBy = entity.CreatedBy;
-            entity.CreatedTime = DateTime.Now;
+            entity.CreatedTime = DateTime.Now;            
             entity.UpdatedTime = DateTime.Now;
             _dbEntity.Set<T>().Add(entity);
             await _dbEntity.SaveChangesAsync();
             return entity;
+        }
+
+        public async Task<int> AddAsync(ICollection<T> entities)
+        {
+            foreach (var entity in entities)
+            {
+                entity.UpdatedBy = entity.CreatedBy;
+                entity.CreatedTime = DateTime.Now;
+                entity.UpdatedTime = DateTime.Now;
+                _dbEntity.Set<T>().Add(entity);
+            }
+            return await _dbEntity.SaveChangesAsync();            
         }
 
         /// <summary>
@@ -126,23 +138,20 @@ namespace AccountingApp.DataAccess
             return await _dbEntity.Set<T>().AsNoTracking().CountAsync(whereLamdba.And(t => !t.IsDeleted));
         }
 
-        public async Task<bool> DeleteAsync(Expression<Func<T, bool>> whereLamdba, string updatedBy)
+        public async Task<int> DeleteAsync(Expression<Func<T, bool>> whereLamdba, string updatedBy)
         {
             var list = _dbEntity.Set<T>().Where(whereLamdba.And(t => !t.IsDeleted)).ToList();
             if (list != null && list.Any())
             {
-                for (int i = 0; i < list.Count(); i++)
+                for (int i = 0; i < list.Count; i++)
                 {
                     list[i].IsDeleted = true;
                     list[i].UpdatedBy = updatedBy;
                     list[i].UpdatedTime = DateTime.Now;
                 }
-                return await _dbEntity.SaveChangesAsync() > 0;
+                return await _dbEntity.SaveChangesAsync();
             }
-            else
-            {
-                return false;
-            }
+            return 0;
         }
     }
 }

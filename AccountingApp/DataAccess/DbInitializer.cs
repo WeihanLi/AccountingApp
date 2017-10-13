@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AccountingApp.Models;
+using Microsoft.EntityFrameworkCore;
 using WeihanLi.Common.Helpers;
 using WeihanLi.EntityFramework.DbDescriptionHelper;
 
@@ -17,7 +18,7 @@ namespace AccountingApp.DataAccess
             // Look for any students.
             if (context.Users.Any())
             {
-                return;   // DB has been seeded
+                return;   // database has created
             }
             Models.User[] users = {
                 new Models.User { Username = "liweihan",PasswordHash = SecurityHelper.SHA256_Encrypt("Test1234"),IsActive=true,CreatedBy = "System",CreatedTime = DateTime.Now,UpdatedBy = "System",UpdatedTime=DateTime.Now },
@@ -33,8 +34,11 @@ namespace AccountingApp.DataAccess
             };
             context.BillTypes.AddRange(types);
             context.SaveChanges();
-            // Generate database description
-            new SqlServerDbDescriptionInitializer().GenerateDbDescription(context);
+            if (context.Database.IsSqlServer())
+            {
+                // Generate database description
+                new SqlServerDbDescriptionInitializer().GenerateDbDescription(context);
+            }
         }
     }
 }

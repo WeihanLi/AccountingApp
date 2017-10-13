@@ -18,7 +18,7 @@ namespace AccountingApp.Controllers
         // GET: BillTypes
         public async Task<IActionResult> Index()
         {
-            return View(await BusinessHelper.BillTypeHelper.SelectAsync(t=>!t.IsDeleted,t=>t.CreatedTime));
+            return View(await BusinessHelper.BillTypeHelper.SelectAsync(t=>true,t=>t.CreatedTime));
         }
 
         // GET: BillTypes/Details/5

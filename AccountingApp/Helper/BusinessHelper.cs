@@ -52,5 +52,19 @@ namespace AccountingApp.Helper
                 return billHelper;
             }
         }
+
+        private DataAccess.DalBillPayItem billPayItemHelper;
+
+        public DataAccess.DalBillPayItem BillPayItemHelper
+        {
+            get
+            {
+                if (billPayItemHelper == null)
+                {
+                    billPayItemHelper = new DataAccess.DalBillPayItem(_dbContext);
+                }
+                return billPayItemHelper;
+            }
+        }
     }
 }

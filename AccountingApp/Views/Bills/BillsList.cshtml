@@ -14,6 +14,9 @@
                 账单类型
             </th>
             <th>
+                账单简介
+            </th>
+            <th>
                 账单总金额
             </th>
             <th>
@@ -45,8 +48,23 @@
             <tr>
                 <td>@bill.BillTitle</td>
                 <td>@bill.AccountBillType.TypeName</td>
-                <td>@bill.BillFee</td>
-                <td>@bill.BillDetails</td>
+                <td>@bill.BillDescription</td>
+                <td>@bill.BillFee.ToString("￥ 0.00")</td>
+                <td>
+                    @{
+                      var details = WeihanLi.Common.Helpers.ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(bill.BillDetails);
+                    <table>                        
+                        @foreach (var item in details)
+                        {
+                            <tr>
+                                <td>@item.PersonName &nbsp;</td>
+                                <td>&nbsp; @(" ￥"+item.PayMoney.ToString("0.00"))</td>
+                            </tr>
+                        }
+
+                    </table>
+                    }
+                </td>
                 <td>
                     @switch (bill.BillStatus)
                     {

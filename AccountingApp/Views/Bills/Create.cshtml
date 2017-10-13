@@ -1,12 +1,13 @@
-﻿@model AccountingApp.Models.Bill
+﻿@using System.Collections
+@model AccountingApp.Models.Bill
 
 @{
-    ViewData["Title"] = "新增账单";
+  ViewData["Title"] = "新增账单";
 }
 
 <h2>@ViewData["Title"]</h2>
 
-<form asp-action="Create">
+<form asp-action="Create" onsubmit="onSubmit()">
     <div class="form-horizontal">
         <hr />
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -20,16 +21,15 @@
         <div class="form-group">
             <label asp-for="BillType" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <select asp-for="BillType" asp-items="(ViewBag.BillTypes).BillTypes" class="form-control">
-                </select>
+                <select asp-for="BillType" asp-items="(ViewBag.BillTypes).BillTypes" class="form-control"></select>
                 <span asp-validation-for="BillType" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="BillDetails" class="col-md-2 control-label"></label>
+            <label asp-for="BillDescription" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="BillDetails" class="form-control" />
-                <span asp-validation-for="BillDetails" class="text-danger"></span>
+                <textarea asp-for="BillDescription" class="form-control"></textarea>
+                <span asp-validation-for="BillDescription" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
@@ -38,6 +38,18 @@
                 <input asp-for="BillFee" class="form-control" />
                 <span asp-validation-for="BillFee" class="text-danger"></span>
             </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="BillDetails" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <label>每人实付金额</label><br />
+                @foreach (var user in (IEnumerable<string>)ViewData["Users"])
+                {
+                <label style="font-weight: normal" for="@("lblBillItem_" + user)">@(user)</label>
+                    <input id="@("lblBillItem_" + user)" name="@("billItem_" + user)" class="form-control billDetail" type="number" value="0" min="0" /><br />
+                }
+            </div>
+            <input type="hidden" asp-for="BillDetails" />
         </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
@@ -53,4 +65,42 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+    <script>
+        //
+        $("#BillFee").blur(function () {
+            var fee = $.trim($("#BillFee").val());
+            if (fee) {
+                $('@("#lblBillItem_" + User.Identity.Name)').val(fee);
+            }
+        });
+
+        function onSubmit() {
+            // 设置BilDetails
+            var billDetails = [];
+            var sum = 0.0;
+            $(".billDetail").each(function(index, ele) {
+                var item = {
+                    "PersonName": $(ele).prev("label").text(),
+                    "PayMoney": $(ele).val()
+                };
+                billDetails.push(item);
+                sum += parseFloat($(ele).val());
+            });
+            //if (sum === parseFloat($.trim($("#BillFee").val()))) {
+            //    $("#BillDetails").val(JSON.stringify(billDetails));
+            //}
+            $("#BillDetails").val(JSON.stringify(billDetails));
+        }
+
+
+        $(function() {
+            var msg = '@ViewData["ErrorMsg"]';
+            if ($.trim(msg)) {
+                layer.msg(msg);
+            }
+        });
+    </script>
 }
+

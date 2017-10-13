@@ -22,6 +22,13 @@ namespace AccountingApp.DataAccess
         }
     }
 
+    public class DalBillPayItem : BaseRepository<BillPayItem>
+    {
+        public DalBillPayItem(AccountingDbContext dbEntity) : base(dbEntity)
+        {
+        }
+    }
+
     public class DalBill : BaseRepository<Bill>
     {
         public DalBill(AccountingDbContext dbEntity) : base(dbEntity)
@@ -33,11 +40,11 @@ namespace AccountingApp.DataAccess
             List<Bill> data = null;
             if (isAsc)
             {
-                data = await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba).OrderBy(orderbyLambda).ToListAsync();
+                data = await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba.And(t => !t.IsDeleted)).OrderBy(orderbyLambda).ToListAsync();
             }
             else
             {
-                data = await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba).OrderByDescending(orderbyLambda).ToListAsync();
+                data = await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba.And(t => !t.IsDeleted)).OrderByDescending(orderbyLambda).ToListAsync();
             }
             var types = _dbEntity.Set<BillType>().AsNoTracking().Where(t => !t.IsDeleted);
             foreach (var item in data)
@@ -53,11 +60,11 @@ namespace AccountingApp.DataAccess
             List<Bill> data = null;
             if (isAsc)
             {
-                data =  await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba).OrderBy(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
+                data =  await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba.And(t=>!t.IsDeleted)).OrderBy(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
             }
             else
             {
-                data =  await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba).OrderByDescending(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
+                data =  await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba.And(t => !t.IsDeleted)).OrderByDescending(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
             }
             var types = _dbEntity.Set<BillType>().AsNoTracking().Where(t => !t.IsDeleted);
             foreach (var item in data)

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AccountingApp
 {
@@ -42,7 +43,7 @@ namespace AccountingApp
                 .AddCookie(options =>
                 {
                     options.AccessDeniedPath = "/Account/Login";
-                    options.LoginPath = "/Account/Login";                    
+                    options.LoginPath = "/Account/Login";
                     options.LogoutPath = "/Account/LogOut";
 
                     // Cookie settings
@@ -51,19 +52,23 @@ namespace AccountingApp
                 });
             // Add framework services.
             services.AddMvc();
+
+#if !DEBUG
+            // enforce https
+            services.Configure<MvcOptions>(options =>
+            {
+                options.Filters.Add(new RequireHttpsAttribute());
+            });
+#endif
+
             //DbContext
             //reslove a exception on ef core,refer to https://github.com/aspnet/EntityFramework/issues/7762
             services.AddScoped<Models.AccountingDbContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,Models.AccountingDbContext context)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, Models.AccountingDbContext context)
         {
-            // 解决中文乱码问题，引用 System.Text.Encoding.CodePages 
-            // - http://www.cnblogs.com/wolf-sun/p/6136482.html
-            // - https://msdn.microsoft.com/zh-cn/library/system.text.encoding.registerprovider(v=vs.110).aspx
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
