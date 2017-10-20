@@ -3,120 +3,119 @@
     Layout = null;
 }
 @if (Model.Count > 0)
-{   
+{
     <table class="table table-striped">
         <thead>
-        <tr>
-            <th>
-                账单标题
-            </th>
-            <th>
-                账单类型
-            </th>
-            <th>
-                账单简介
-            </th>
-            <th>
-                账单总金额
-            </th>
-            <th>
-                账单详情
-            </th>
-            <th>
-                账单状态
-            </th>
-            <th>
-                创建人
-            </th>
-            <th>
-                创建时间
-            </th>
-            <th>
-                更新人
-            </th>
-            <th>
-                更新时间
-            </th>
-            <th>
-                操作
-            </th>
-        </tr>
+            <tr>
+                <th>
+                    账单标题
+                </th>
+                <th>
+                    账单类型
+                </th>
+                <th>
+                    账单简介
+                </th>
+                <th>
+                    账单总金额
+                </th>
+                <th>
+                    账单详情
+                </th>
+                <th>
+                    账单状态
+                </th>
+                <th>
+                    创建人
+                </th>
+                <th>
+                    创建时间
+                </th>
+                <th>
+                    更新人
+                </th>
+                <th>
+                    更新时间
+                </th>
+                <th>
+                    操作
+                </th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var bill in Model)
-        {
-            <tr>
-                <td>@bill.BillTitle</td>
-                <td>@bill.AccountBillType.TypeName</td>
-                <td>@bill.BillDescription</td>
-                <td>@bill.BillFee.ToString("￥ 0.00")</td>
-                <td>
-                    @{
-                      var details = WeihanLi.Common.Helpers.ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(bill.BillDetails);
-                    <table>                        
-                        @foreach (var item in details)
-                        {
-                            <tr>
-                                <td>@item.PersonName &nbsp;</td>
-                                <td>&nbsp; @(" ￥"+item.PayMoney.ToString("0.00"))</td>
-                            </tr>
-                        }
+            @foreach (var bill in Model)
+            {
+                <tr>
+                    <td>@bill.BillTitle</td>
+                    <td>@bill.AccountBillType.TypeName</td>
+                    <td>@bill.BillDescription</td>
+                    <td>@bill.BillFee.ToString("￥ 0.00")</td>
+                    <td>
+                        @{
+                            var details = WeihanLi.Common.Helpers.ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(bill.BillDetails);
+                            <dl>
+                                @foreach (var item in details)
+                                {
+                                    <dt>@item.PersonName</dt>
+                                    <dd>@(" ￥" + item.PayMoney.ToString("0.00"))</dd>
+                                }
 
-                    </table>
-                    }
-                </td>
-                <td>
-                    @switch (bill.BillStatus)
+                            </dl>
+                        }
+                    </td>
+                    <td>
+                        @switch (bill.BillStatus)
                     {
                         case 1:
-                            @Html.Raw("申请报销");
+                                @Html.Raw("申请报销");
                             break;
                         case 2:
-                            @Html.Raw("已报销");
+                                @Html.Raw("已报销");
                             break;
                         case 3:
-                            @Html.Raw("已取消申请报销");
+                                @Html.Raw("已取消申请报销");
                             break;
                         default:
-                            @Html.Raw("新建");
+                                @Html.Raw("新建");
                             break;
                     }
-                </td>
-                <td>
-                    @bill.CreatedBy
-                </td>
-                <td>
-                    @bill.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")
-                </td>
-                <td>@bill.UpdatedBy</td>
-                <td>@bill.UpdatedTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                <td>
-                    @switch(bill.BillStatus){
-                        case 1:
-                            <button type="button" class="btn btn-danger btn-sm" onclick="apply('@bill.PKID',3)">取消申请</button>
-                            <button type="button" class="btn btn-success btn-sm" onclick="apply('@bill.PKID',2)">确认报销</button>
-                            break;
-                        case 2:
-                            <label>该账单已报销</label>
-                            break;
-                        case 3:
-                            <label>该账单已取消申请报销，无需操作</label>
-                            break;
-                        default:
-                            <button type="button" class="btn btn-success btn-sm" onclick="apply('@bill.PKID',1)">申请报销</button>
-                            break;
-                    }
-                    | <a href='@Url.Action("Edit","Bills",new {id = bill.PKID})'>编辑</a> | <a href='@Url.Action("Delete","Bills",new {id = bill.PKID})'>删除</a>
-                </td>
-            </tr>
-        }
+                    </td>
+                    <td>
+                        @bill.CreatedBy
+                    </td>
+                    <td>
+                        @bill.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")
+                    </td>
+                    <td>@bill.UpdatedBy</td>
+                    <td>@bill.UpdatedTime.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>
+                        @switch (bill.BillStatus)
+                        {
+                            case 1:
+                                <button type="button" class="btn btn-danger btn-sm" onclick="apply('@bill.PKID',3)">取消申请</button>
+                                <button type="button" class="btn btn-success btn-sm" onclick="apply('@bill.PKID',2)">确认报销</button>
+                                break;
+                            case 2:
+                                <label>该账单已报销</label>
+                                break;
+                            case 3:
+                                <label>该账单已取消申请报销，无需操作</label>
+                                break;
+                            default:
+                                <button type="button" class="btn btn-success btn-sm" onclick="apply('@bill.PKID',1)">申请报销</button>
+                                break;
+                        }
+                        | <a href='@Url.Action("Edit","Bills",new {id = bill.PKID})'>编辑</a> | <a href='@Url.Action("Delete","Bills",new {id = bill.PKID})'>删除</a>
+                    </td>
+                </tr>
+                            }
         </tbody>
     </table>
-    @Html.Pager(Model.Pager,pageIndex => String.Format("javascript:loadData({0})",pageIndex),"_PagerPartial",displayMode: PagingDisplayMode.IfNeeded)   
-}
-else
-{
-    <div class="nodata-tip">
-        暂时没有数据
-    </div>
-}
+    @Html.Pager(Model.Pager, pageIndex => String.Format("javascript:loadData({0})", pageIndex), "_PagerPartial", displayMode: PagingDisplayMode.IfNeeded)
+                            }
+                            else
+                            {
+                                <div class="nodata-tip">
+                                    暂时没有数据
+                                </div>
+                            }
