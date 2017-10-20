@@ -49,7 +49,7 @@
                     <td>@bill.BillTitle</td>
                     <td>@bill.AccountBillType.TypeName</td>
                     <td>@bill.BillDescription</td>
-                    <td>@bill.BillFee.ToString("￥ 0.00")</td>
+                    <td>@bill.BillFee.ToString("0.00")</td>
                     <td>
                         @{
                             var details = WeihanLi.Common.Helpers.ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(bill.BillDetails);
@@ -57,7 +57,7 @@
                                 @foreach (var item in details)
                                 {
                                     <dt>@item.PersonName</dt>
-                                    <dd>@(" ￥" + item.PayMoney.ToString("0.00"))</dd>
+                                    <dd>@("￥" + item.PayMoney.ToString("0.00"))</dd>
                                 }
 
                             </dl>
