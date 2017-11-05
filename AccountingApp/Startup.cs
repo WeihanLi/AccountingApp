@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WeihanLi.Common.Helpers;
 
 namespace AccountingApp
 {
@@ -57,7 +58,7 @@ namespace AccountingApp
             // enforce https
             services.Configure<MvcOptions>(options =>
             {
-                options.Filters.Add(new RequireHttpsAttribute());
+                // options.Filters.Add(new RequireHttpsAttribute());
             });
 #endif
 
@@ -71,6 +72,7 @@ namespace AccountingApp
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            loggerFactory.AddLog4Net();
 
             if (env.IsDevelopment())
             {

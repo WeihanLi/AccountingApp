@@ -7,26 +7,27 @@ using NPOI.SS.UserModel;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using AccountingApp.ViewModels;
-using NPOI.XSSF.UserModel;
 using WeihanLi.AspNetMvc.MvcSimplePager;
 using WeihanLi.Common.Helpers;
+using WeihanLi.Common.Models;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using WeihanLi.Extensions;
 
 namespace AccountingApp.Controllers
 {
     public class BillsController : BaseController
     {
-        public BillsController(AccountingDbContext context) : base(context)
+        public BillsController(AccountingDbContext context, ILogger<BillsController> logger) : base(context, logger)
         {
         }
 
         // GET: Bill
         public ActionResult Index()
-        {
-            // 新版首页，新分页
-            return View("NewIndex");
-        }
+        => View("NewIndex");
 
         public async Task<ActionResult> ExportBillsReport()
         {
@@ -110,11 +111,21 @@ namespace AccountingApp.Controllers
             return View(data.ToPagedList(pageIndex, pageSize, totalCount));
         }
 
+        public ActionResult BillPayItemList(string personName)
+        {
+            Expression<Func<BillPayItem, bool>> billPayItemPredict = item => true;
+            if (!string.IsNullOrWhiteSpace(personName))
+            {
+                billPayItemPredict.And(b => b.PersonName == personName);
+            }
+            return Json(BusinessHelper.BillPayItemHelper.SelectAsync(billPayItemPredict, b => b.CreatedTime), new JsonSerializerSettings { DateFormatString = "yyyy-MM-dd HH:mm:sss" });
+        }
+
         // GET: Bill/Create
         [ActionName("Create")]
         public async Task<ActionResult> CreateAsync()
         {
-            ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
+            ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
             var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
             ViewData["Users"] = user.Select(u => u.Username);
             return View();
@@ -133,7 +144,7 @@ namespace AccountingApp.Controllers
                     if (items.Sum(t => t.PayMoney) != bill.BillFee)
                     {
                         ModelState.AddModelError("BillFee", "每个人实付金额与总金额不符，请检查");
-                        ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
+                        ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
                         var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
                         ViewData["Users"] = user.Select(u => u.Username);
                         ViewData["ErrorMsg"] = "每个人实付金额与总金额不符，请检查";
@@ -151,16 +162,16 @@ namespace AccountingApp.Controllers
                 }
                 else
                 {
-                    ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
+                    ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
                     var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
                     ViewData["Users"] = user.Select(u => u.Username);
                     ViewData["ErrorMsg"] = "请求参数不合法";
                     return View();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
+                ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
                 var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
                 ViewData["Users"] = user.Select(u => u.Username);
                 return View();
@@ -171,7 +182,7 @@ namespace AccountingApp.Controllers
         [HttpGet, ActionName("Edit")]
         public async Task<ActionResult> EditAsync(int id)
         {
-            ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true), id);
+            ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true), id);
             return View(await BusinessHelper.BillHelper.FetchAsync(id));
         }
 
@@ -188,7 +199,7 @@ namespace AccountingApp.Controllers
             }
             catch
             {
-                ViewData["BillTypes"] = new ViewModels.BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true), bill.PKID);
+                ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true), bill.PKID);
                 return View();
             }
         }
@@ -202,17 +213,17 @@ namespace AccountingApp.Controllers
         [HttpPost, ActionName("UpdateBillStatus")]
         public async Task<IActionResult> UpdateBillStatusAsync(int id, int status)
         {
-            var result = new HelperModels.JsonResultModel();
+            var result = new JsonResultModel();
             if (id <= 0 || status <= 0)
             {
-                result.Status = HelperModels.JsonResultStatus.RequestError;
+                result.Status = JsonResultStatus.RequestError;
                 result.Msg = "请求参数异常";
                 return Json(result);
             }
             Bill bill = new Bill { PKID = id, BillStatus = status };
             bill.UpdatedBy = User.Identity.Name;
             await BusinessHelper.BillHelper.UpdateAsync(bill, b => b.BillStatus);
-            result.Status = HelperModels.JsonResultStatus.Success;
+            result.Status = JsonResultStatus.Success;
             result.Msg = "操作成功";
             return Json(result);
         }
@@ -237,15 +248,8 @@ namespace AccountingApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmedAsync(int id)
         {
-            try
-            {
-                await Task.WhenAll(BusinessHelper.BillHelper.DeleteAsync(m => m.PKID == id, User.Identity.Name), BusinessHelper.BillPayItemHelper.DeleteAsync(t => t.BillId == id, User.Identity.Name));
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Index");
-            }
+            await Task.WhenAll(BusinessHelper.BillHelper.DeleteAsync(m => m.PKID == id, User.Identity.Name), BusinessHelper.BillPayItemHelper.DeleteAsync(t => t.BillId == id, User.Identity.Name));
+            return RedirectToAction("Index");
         }
     }
 }

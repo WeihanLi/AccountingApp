@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using WeihanLi.AspNetMvc.AccessControlHelper;
 using WeihanLi.Common.Helpers;
+using WeihanLi.Common.Models;
+using Microsoft.Extensions.Logging;
 
 namespace AccountingApp.Controllers
 {
     public class AccountController : BaseController
     {
-        private readonly AccountingDbContext _dbContext;
-        public AccountController(AccountingDbContext dbEntity) : base(dbEntity)
+        public AccountController(AccountingDbContext context, ILogger<AccountController> logger) : base(context, logger)
         {
-            _dbContext = dbEntity;
         }
 
         public IActionResult Index()
@@ -26,19 +26,19 @@ namespace AccountingApp.Controllers
         [HttpPost, ActionName("UpdatePassword")]
         public async Task<IActionResult> UpdatePasswordAsync(ViewModels.UpdatePasswordViewModel model)
         {
-            var result = new HelperModels.JsonResultModel();
+            var result = new JsonResultModel();
             if (ModelState.IsValid)
             {
                 var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == User.Identity.Name);
                 if (user == null)
                 {
-                    result.Status = HelperModels.JsonResultStatus.ResourceNotFound;
+                    result.Status = JsonResultStatus.ResourceNotFound;
                     result.Msg = "用户名不存在！";
                     return Json(result);
                 }
                 if (!user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(model.OldPassword)))
                 {
-                    result.Status = HelperModels.JsonResultStatus.RequestError;
+                    result.Status = JsonResultStatus.RequestError;
                     result.Msg = "原密码有误，请重试";
                     return Json(result);
                 }
@@ -50,12 +50,12 @@ namespace AccountingApp.Controllers
                     {
                         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                         result.Msg = "更新成功";
-                        result.Status = HelperModels.JsonResultStatus.Success;
+                        result.Status = JsonResultStatus.Success;
                     }
                     else
                     {
                         result.Msg = "更新失败";
-                        result.Status = HelperModels.JsonResultStatus.ProcessFail;
+                        result.Status = JsonResultStatus.ProcessFail;
                     }
                 }
             }
@@ -65,30 +65,30 @@ namespace AccountingApp.Controllers
         [HttpPost, ActionName("ValidateOldPassword")]
         public async Task<IActionResult> ValidateOldPasswordAsync(string password)
         {
-            var result = new HelperModels.JsonResultModel<bool>() { Data = false };
+            var result = new JsonResultModel<bool>();
             if (string.IsNullOrEmpty(password))
             {
-                result.Status = HelperModels.JsonResultStatus.RequestError;
+                result.Status = JsonResultStatus.RequestError;
                 result.Msg = "原密码不能为空";
                 return Json(result);
             }
             var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == User.Identity.Name);
             if (user == null)
             {
-                result.Status = HelperModels.JsonResultStatus.ResourceNotFound;
+                result.Status = JsonResultStatus.ResourceNotFound;
                 result.Msg = "用户不存在！";
                 return Json(result);
             }
             if (!user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(password)))
             {
-                result.Status = HelperModels.JsonResultStatus.RequestError;
+                result.Status = JsonResultStatus.RequestError;
                 result.Msg = "原密码有误";
             }
             else
             {
                 result.Data = true;
                 result.Msg = "密码正确";
-                result.Status = HelperModels.JsonResultStatus.Success;
+                result.Status = JsonResultStatus.Success;
             }
             return Json(result);
         }
@@ -119,13 +119,13 @@ namespace AccountingApp.Controllers
         [NoAccessControl]
         public async Task<IActionResult> LogonAsync(ViewModels.LogonViewModel model)
         {
-            var result = new HelperModels.JsonResultModel();
+            var result = new JsonResultModel();
             if (ModelState.IsValid)
             {
                 var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == model.Username);
                 if (user == null)
                 {
-                    result.Status = HelperModels.JsonResultStatus.ResourceNotFound;
+                    result.Status = JsonResultStatus.ResourceNotFound;
                     result.Msg = "用户不存在";
                 }
                 else
@@ -136,18 +136,22 @@ namespace AccountingApp.Controllers
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, u, new AuthenticationProperties { IsPersistent = model.RememberMe, AllowRefresh = true });
                         //
                         result.Msg = "登录成功";
-                        result.Status = HelperModels.JsonResultStatus.Success;
+                        result.Status = JsonResultStatus.Success;
+                        
+                        _logger.LogInformation($"{user.Username} login success");
                     }
                     else
                     {
-                        result.Status = HelperModels.JsonResultStatus.RequestError;
+                        result.Status = JsonResultStatus.RequestError;
                         result.Msg = "用户名或密码错误";
+
+                        _logger.LogWarning($"{user.Username} login failed");
                     }
                 }
             }
             else
             {
-                result.Status = HelperModels.JsonResultStatus.RequestError;
+                result.Status = JsonResultStatus.RequestError;
                 result.Msg = "请求参数异常！";
             }
             return Json(result);

@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AccountingApp.Models;
+using Microsoft.Extensions.Logging;
 
 namespace AccountingApp.Controllers
 {
     public class BillTypesController : BaseController
     {
-        public BillTypesController(AccountingDbContext context) : base(context)
+        public BillTypesController(AccountingDbContext context, ILogger<BillTypesController> logger) : base(context, logger)
         {
         }
 

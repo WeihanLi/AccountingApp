@@ -56,6 +56,11 @@ namespace AccountingApp.Models
         /// </summary>
         public DbSet<Bill> Bills { get; set; }
 
+        /// <summary>
+        /// 账单支付详情
+        /// </summary>
+        public DbSet<BillPayItem> BillPayItems { get; set; }
+
         #endregion Tables
     }
 }

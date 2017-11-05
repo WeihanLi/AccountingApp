@@ -1,15 +1,31 @@
 ﻿@{
-    ViewData["Title"] = "首页";
+  ViewData["Title"] = "首页";
 }
 <div class="table-wraper">
     <div class="table-header">
         <h3 class="table-title">@ViewData["Title"]</h3>
     </div>
     <div class="table-body" id="div_main">
-        <ul class="list-group">
-            <li class="list-group-item">@Html.ActionLink("我的账户", "Index", "Account")</li>
-            <li class="list-group-item">@Html.ActionLink("账单类型", "Index", "BillTypes")</li>
-            <li class="list-group-item">@Html.ActionLink("账单管理", "Index", "Bills")</li>
-        </ul>
+        <nav>
+            <ul class="list-group">
+                <li class="list-group-item">@Html.ActionLink("我的账户", "Index", "Account")</li>
+                <li class="list-group-item">@Html.ActionLink("账单类型", "Index", "BillTypes")</li>
+                <li class="list-group-item">@Html.ActionLink("账单管理", "Index", "Bills")</li>
+            </ul>
+        </nav>
+        <div id="div_stat">
+            <section id="sec_bill_pay_summary" style="width: 800px;height: 400px"></section>
+        </div>
     </div>
 </div>
+@section Scripts{
+    <script src="//cdn.bootcss.com/echarts/3.6.2/echarts.min.js"></script>
+    <script src="~/js/echartHelper.js"></script>
+    <script>
+        // bill_pay_summary
+        loadChart('@Url.Action("BillPaySummary")',
+            'sec_bill_pay_summary',
+            'pie',
+            '账单支付比例统计');
+    </script>
+}

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using WeihanLi.AspNetMvc.AccessControlHelper;
 
 namespace AccountingApp.Controllers
@@ -15,9 +16,14 @@ namespace AccountingApp.Controllers
     {
         protected readonly AccountingDbContext _context;
 
-        public BaseController(AccountingDbContext context)
+        protected readonly ILogger _logger;
+
+        public BaseController(AccountingDbContext context,ILogger<BaseController> logger)
         {
             _context = context;
+            _logger = logger;
+
+            _logger.LogDebug("log info from BaseController");
         }
 
         private Helper.BusinessHelper businessHelper;
