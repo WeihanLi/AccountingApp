@@ -46,13 +46,13 @@
                 @Html.DisplayFor(modelItem => item.CreatedBy)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedTime)
+                @item.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.UpdatedBy)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.UpdatedTime)
+                @item.UpdatedTime.ToString("yyyy-MM-dd HH:mm:ss")
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.PKID">编辑</a> |

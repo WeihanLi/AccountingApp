@@ -97,16 +97,22 @@ namespace AccountingApp.Controllers
         /// </summary>
         /// <param name="pageIndex">页码索引</param>
         /// <param name="pageSize">每页数据量</param>
+        /// <param name="filerPersonName">只看谁创建的</param>
         /// <returns></returns>
         [HttpGet]
         [ActionName("BillsList")]
-        public async Task<ActionResult> BillsListAsync(int pageIndex = 1, int pageSize = 10)
+        public async Task<ActionResult> BillsListAsync(int pageIndex = 1, int pageSize = 10, string filerPersonName = "")
         {
-            int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(b => true);
+            Expression<Func<Bill, bool>> predict = b => true;
+            if (!string.IsNullOrWhiteSpace(filerPersonName))
+            {
+                predict = predict.And(b => b.CreatedBy == filerPersonName);
+            }
+            int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(predict);
             List<Bill> data = new List<Bill>();
             if (totalCount > 0)
             {
-                data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => true, b => b.CreatedTime);
+                data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, predict, b => b.CreatedTime);
             }
             return View(data.ToPagedList(pageIndex, pageSize, totalCount));
         }

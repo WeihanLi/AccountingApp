@@ -6,14 +6,24 @@
         <h3 class="table-title">@ViewData["Title"]</h3>
     </div>
     <p>
-        <a asp-action="Create" style="font-size: 1.2em;font-weight: bold">添加新账单</a> &nbsp; 
-        @using (Html.SparkContainer("button", new { type = "button", id = "btnExportBills", @class = "btn btn-success" },User.Identity.Name))
+        <a asp-action="Create" style="font-size: 1.2em;font-weight: bold">添加新账单</a> &nbsp;
+        @using (Html.SparkContainer("button", new { type = "button", id = "btnExportBills", @class = "btn btn-success" }, User.Identity.Name))
         {
             @:导出账单
         }
     </p>
+    <div class="search form-inline">
+        <label for="selectPerson">选择创建人</label>
+        <select id="selectPerson" class="form-control">
+            <option value="" selected="selected">--请选择--</option>
+            <option value="heyafei">heyafei</option>
+            <option value="liweihan">liweihan</option>
+            <option value="zoushirong">zoushirong</option>
+        </select>
+        <button type="button" id="btnQuery" class="btn btn-primary">查询</button>
+    </div>
     <div class="table-body" id="div_main">
-        
+
     </div>
 </div>
 @section Scripts{
@@ -21,7 +31,11 @@
         var pageIndex = 1, pageSize = 10;
         // export
         $("#btnExportBills").click(function() {
-            window.open('@Url.Action("ExportBillsReport")',"导出账单");
+            window.open('@Url.Action("ExportBillsReport")', "导出账单");
+        });
+        //
+        $("#btnQuery").click(function() {
+            loadData(1);
         });
 
         function apply(id, status) {
@@ -54,7 +68,7 @@
             }
             var loading = layer.load(2);
             $.get('@Url.Action("BillsList")',
-                { "pageIndex": pageIndex, "pageSize": pageSize },
+                { "pageIndex": pageIndex, "pageSize": pageSize, "filerPersonName": $("#selectPerson").val() },
                 function(data, status) {
                     layer.close(loading);
                     if (status == "success" && data) {

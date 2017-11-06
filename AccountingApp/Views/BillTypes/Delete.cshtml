@@ -33,7 +33,7 @@
             @Html.DisplayNameFor(model => model.CreatedTime)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.CreatedTime)
+            @Model.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss")
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.UpdatedBy)
@@ -45,7 +45,7 @@
             @Html.DisplayNameFor(model => model.UpdatedTime)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.UpdatedTime)
+            @Model.UpdatedTime.ToString("yyyy-MM-dd HH:mm:ss")
         </dd>
     </dl>
     

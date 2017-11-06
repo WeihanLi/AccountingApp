@@ -58,7 +58,7 @@ namespace AccountingApp
             // enforce https
             services.Configure<MvcOptions>(options =>
             {
-                // options.Filters.Add(new RequireHttpsAttribute());
+                options.Filters.Add(new RequireHttpsAttribute());
             });
 #endif
 
