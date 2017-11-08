@@ -1,5 +1,4 @@
 using System;
-using AccountingApp.Helper;
 using AccountingApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using NPOI.HSSF.UserModel;
@@ -82,14 +81,13 @@ namespace AccountingApp.Controllers
         [ActionName("List")]
         public async Task<ActionResult> ListAsync(int pageIndex = 1, int pageSize = 20)
         {
-            Newtonsoft.Json.JsonSerializerSettings setting = new Newtonsoft.Json.JsonSerializerSettings()
-            {
-                DateFormatString = "yyyy-MM-dd HH:mm:ss"
-            };
             int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(b => true);
             var data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => true, b => b.CreatedTime);
             var list = data.ToPagedListModel(pageIndex, pageSize, totalCount);
-            return Json(list, setting);
+            return Json(list, new JsonSerializerSettings
+            {
+                DateFormatString = "yyyy-MM-dd HH:mm:ss"
+            });
         }
 
         /// <summary>
