@@ -28,7 +28,7 @@
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
     <PackageReference Include="WeihanLi.AspNetMvc.AccessControlHelper" Version="1.1.0" />
     <PackageReference Include="WeihanLi.AspNetMvc.MvcSimplePager" Version="1.0.0" />
-    <PackageReference Include="WeihanLi.Common" Version="1.0.5" />
+    <PackageReference Include="WeihanLi.Common" Version="1.0.6" />
     <PackageReference Include="WeihanLi.EntityFramework.DbDescriptionHelper" Version="0.8.0" />
   </ItemGroup>
   <ItemGroup>
