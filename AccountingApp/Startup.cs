@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +29,6 @@ namespace AccountingApp
         public void ConfigureServices(IServiceCollection services)
         {
             // Add db service
-            // SqlServer
-            //services.AddDbContext<Models.AccountingDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("SqlServerConnection")));
             // MySql
             services.AddDbContext<Models.AccountingDbContext>(options => options.UseMySql(Configuration.GetConnectionString("MySqlConnection")));
 
@@ -50,6 +49,7 @@ namespace AccountingApp
 
 #if !DEBUG
             // enforce https
+            // requires all requests use HTTPS
             services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options =>
             {
                 options.Filters.Add(new Microsoft.AspNetCore.Mvc.RequireHttpsAttribute());
@@ -66,12 +66,12 @@ namespace AccountingApp
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            // add log4net
             loggerFactory.AddLog4Net();
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
             }
             else
             {
@@ -83,6 +83,12 @@ namespace AccountingApp
             app.UseStaticFiles();
 
             app.UseMvcWithDefaultRoute();
+#if !DEBUG
+            // https://docs.microsoft.com/en-us/aspnet/core/security/enforcing-ssl#require-ssl
+            // redirects all HTTP requests to HTTPS
+            app.UseRewriter(new RewriteOptions().AddRedirectToHttps());
+           
+#endif
             // 权限控制
             app.UseAccessControlHelper(option =>
             {
