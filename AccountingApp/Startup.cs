@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using WeihanLi.Common;
 
 namespace AccountingApp
 {
@@ -56,9 +57,14 @@ namespace AccountingApp
             });
 #endif
 
+            //add AddAccessControlHelper
+            services.AddAccessControlHelper<AccountingActionAccessStrategy,AccountingControlAccessStrategy>();
+
             //DbContext
             //reslove a exception on ef core,refer to https://github.com/aspnet/EntityFramework/issues/7762
             services.AddScoped<Models.AccountingDbContext>();
+
+            DependencyResolver.SetDependencyResolver(new MicrosoftExtensionDependencyResolver(services.BuildServiceProvider()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,11 +96,7 @@ namespace AccountingApp
            
 #endif
             // 权限控制
-            app.UseAccessControlHelper(option =>
-            {
-                option.ActionAccessStrategy = new AccountingActionAccessStrategy();
-                option.ControlAccessStrategy = new AccountingControlAccessStrategy();
-            });
+            app.UseAccessControlHelper();
             // Initialize
             DataAccess.DbInitializer.Initialize(context);
         }

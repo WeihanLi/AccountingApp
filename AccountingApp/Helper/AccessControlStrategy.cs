@@ -14,7 +14,7 @@ namespace AccountingApp.Helper
 
     public class AccountingActionAccessStrategy : IActionAccessStrategy
     {
-        public bool IsActionCanAccess(string areaName, string controllerName, string actionName)
+        public bool IsActionCanAccess(string areaName, string controllerName, string actionName,string accessKey)
             => true;
 
         public IActionResult DisallowedCommonResult => new ContentResult { Content = "You have no permission", ContentType = "text/plain" };
