@@ -15,6 +15,7 @@
         </nav>
         <div id="div_stat">
             <section id="sec_bill_pay_summary" style="width: 800px;height: 400px"></section>
+            <section id="sec_billPayType_summary" style="width: 800px;height: 400px"></section>
         </div>
     </div>
 </div>
@@ -26,6 +27,12 @@
         loadChart('@Url.Action("BillPaySummary")',
             'sec_bill_pay_summary',
             'pie',
-            '账单支付比例统计');
+            '账单支付统计');
+        // billPayType_summary
+        loadChart('@Url.Action("BillPayTypeSummary")',
+            'sec_billPayType_summary',
+            'pie',
+            '账单类型统计');
+
     </script>
 }
