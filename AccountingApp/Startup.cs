@@ -4,6 +4,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+
+#if !DEBUG
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
+#endif
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,9 +63,9 @@ namespace AccountingApp
 #if !DEBUG
             // enforce https
             // requires all requests use HTTPS
-            services.Configure<Microsoft.AspNetCore.Mvc.MvcOptions>(options =>
+            services.Configure<MvcOptions>(options =>
             {
-                options.Filters.Add(new Microsoft.AspNetCore.Mvc.RequireHttpsAttribute());
+                options.Filters.Add(new RequireHttpsAttribute());
             });
 #endif
 
