@@ -1,14 +1,13 @@
+ï»¿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using AccountingApp.Models;
 using AccountingApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 using WeihanLi.AspNetMvc.MvcSimplePager;
 using WeihanLi.Common.Helpers;
 using WeihanLi.Common.Models;
@@ -32,13 +31,9 @@ namespace AccountingApp.Controllers
             var bills = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => true, b => b.CreatedTime);
             if (bills != null && bills.Any())
             {
-                using (var stream = new MemoryStream())
-                {
-                    bills.ToExcelStream(stream);
-                    return File(stream.ToArray(), "application/octet-stream", "Bills.xls");
-                }
+                return File(bills.ToExcelBytes(), "application/octet-stream", "Bills.xls");
             }
-            return Content("Ã»ÓĞÊı¾İĞèÒªµ¼³ö");
+            return Content("æ²¡æœ‰æ•°æ®éœ€è¦å¯¼å‡º");
         }
 
         [HttpGet]
@@ -55,11 +50,11 @@ namespace AccountingApp.Controllers
         }
 
         /// <summary>
-        /// ÕËµ¥ÁĞ±í
+        /// è´¦å•åˆ—è¡¨
         /// </summary>
-        /// <param name="pageIndex">Ò³ÂëË÷Òı</param>
-        /// <param name="pageSize">Ã¿Ò³Êı¾İÁ¿</param>
-        /// <param name="filerPersonName">Ö»¿´Ë­´´½¨µÄ</param>
+        /// <param name="pageIndex">é¡µç ç´¢å¼•</param>
+        /// <param name="pageSize">æ¯é¡µæ•°æ®é‡</param>
+        /// <param name="filerPersonName">åªçœ‹è°åˆ›å»ºçš„</param>
         /// <returns></returns>
         [HttpGet]
         [ActionName("BillsList")]
@@ -111,11 +106,11 @@ namespace AccountingApp.Controllers
                     var items = ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(bill.BillDetails);
                     if (items.Sum(t => t.PayMoney) != bill.BillFee)
                     {
-                        ModelState.AddModelError("BillFee", "Ã¿¸öÈËÊµ¸¶½ğ¶îÓë×Ü½ğ¶î²»·û£¬Çë¼ì²é");
+                        ModelState.AddModelError("BillFee", "æ¯ä¸ªäººå®ä»˜é‡‘é¢ä¸æ€»é‡‘é¢ä¸ç¬¦ï¼Œè¯·æ£€æŸ¥");
                         ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
                         var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
                         ViewData["Users"] = user.Select(u => u.Username);
-                        ViewData["ErrorMsg"] = "Ã¿¸öÈËÊµ¸¶½ğ¶îÓë×Ü½ğ¶î²»·û£¬Çë¼ì²é";
+                        ViewData["ErrorMsg"] = "æ¯ä¸ªäººå®ä»˜é‡‘é¢ä¸æ€»é‡‘é¢ä¸ç¬¦ï¼Œè¯·æ£€æŸ¥";
                         return View();
                     }
                     bill.CreatedBy = User.Identity.Name;
@@ -123,7 +118,7 @@ namespace AccountingApp.Controllers
                     if (res != null)
                     {
                         var billItems = items.Select(t => new BillPayItem { BillId = res.PKID, CreatedBy = User.Identity.Name, PayMoney = t.PayMoney, PersonName = t.PersonName }).Where(b => b.PayMoney > 0).ToList();
-                        //±£´æµ½Êı¾İ¿â
+                        //ä¿å­˜åˆ°æ•°æ®åº“
                         await BusinessHelper.BillPayItemHelper.AddAsync(billItems);
                     }
                     return RedirectToAction("Index");
@@ -133,7 +128,7 @@ namespace AccountingApp.Controllers
                     ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
                     var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
                     ViewData["Users"] = user.Select(u => u.Username);
-                    ViewData["ErrorMsg"] = "ÇëÇó²ÎÊı²»ºÏ·¨";
+                    ViewData["ErrorMsg"] = "è¯·æ±‚å‚æ•°ä¸åˆæ³•";
                     return View();
                 }
             }
@@ -173,10 +168,10 @@ namespace AccountingApp.Controllers
         }
 
         /// <summary>
-        /// ¸üĞÂÕËµ¥×´Ì¬
+        /// æ›´æ–°è´¦å•çŠ¶æ€
         /// </summary>
-        /// <param name="id">ÕËµ¥id</param>
-        /// <param name="status">ÕËµ¥×´Ì¬</param>
+        /// <param name="id">è´¦å•id</param>
+        /// <param name="status">è´¦å•çŠ¶æ€</param>
         /// <returns></returns>
         [HttpPost, ActionName("UpdateBillStatus")]
         public async Task<IActionResult> UpdateBillStatusAsync(int id, int status)
@@ -185,14 +180,14 @@ namespace AccountingApp.Controllers
             if (id <= 0 || status <= 0)
             {
                 result.Status = JsonResultStatus.RequestError;
-                result.ErrorMsg = "ÇëÇó²ÎÊıÒì³£";
+                result.ErrorMsg = "è¯·æ±‚å‚æ•°å¼‚å¸¸";
                 return Json(result);
             }
             Bill bill = new Bill { PKID = id, BillStatus = status };
             bill.UpdatedBy = User.Identity.Name;
             await BusinessHelper.BillHelper.UpdateAsync(bill, b => b.BillStatus);
             result.Status = JsonResultStatus.Success;
-            result.ErrorMsg = "²Ù×÷³É¹¦";
+            result.ErrorMsg = "æ“ä½œæˆåŠŸ";
             return Json(result);
         }
 
