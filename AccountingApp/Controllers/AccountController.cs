@@ -1,14 +1,14 @@
 ﻿using AccountingApp.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
 using WeihanLi.AspNetMvc.AccessControlHelper;
 using WeihanLi.Common.Helpers;
 using WeihanLi.Common.Models;
-using Microsoft.Extensions.Logging;
 
 namespace AccountingApp.Controllers
 {
@@ -33,13 +33,13 @@ namespace AccountingApp.Controllers
                 if (user == null)
                 {
                     result.Status = JsonResultStatus.ResourceNotFound;
-                    result.Msg = "用户名不存在！";
+                    result.ErrorMsg = "用户名不存在！";
                     return Json(result);
                 }
                 if (!user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(model.OldPassword)))
                 {
                     result.Status = JsonResultStatus.RequestError;
-                    result.Msg = "原密码有误，请重试";
+                    result.ErrorMsg = "原密码有误，请重试";
                     return Json(result);
                 }
                 else
@@ -49,12 +49,12 @@ namespace AccountingApp.Controllers
                     if (isSuccess)
                     {
                         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                        result.Msg = "更新成功";
+                        result.ErrorMsg = "更新成功";
                         result.Status = JsonResultStatus.Success;
                     }
                     else
                     {
-                        result.Msg = "更新失败";
+                        result.ErrorMsg = "更新失败";
                         result.Status = JsonResultStatus.ProcessFail;
                     }
                 }
@@ -69,25 +69,25 @@ namespace AccountingApp.Controllers
             if (string.IsNullOrEmpty(password))
             {
                 result.Status = JsonResultStatus.RequestError;
-                result.Msg = "原密码不能为空";
+                result.ErrorMsg = "原密码不能为空";
                 return Json(result);
             }
             var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == User.Identity.Name);
             if (user == null)
             {
                 result.Status = JsonResultStatus.ResourceNotFound;
-                result.Msg = "用户不存在！";
+                result.ErrorMsg = "用户不存在！";
                 return Json(result);
             }
             if (!user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(password)))
             {
                 result.Status = JsonResultStatus.RequestError;
-                result.Msg = "原密码有误";
+                result.ErrorMsg = "原密码有误";
             }
             else
             {
-                result.Data = true;
-                result.Msg = "密码正确";
+                result.Result = true;
+                result.ErrorMsg = "密码正确";
                 result.Status = JsonResultStatus.Success;
             }
             return Json(result);
@@ -126,7 +126,7 @@ namespace AccountingApp.Controllers
                 if (user == null)
                 {
                     result.Status = JsonResultStatus.ResourceNotFound;
-                    result.Msg = "用户不存在";
+                    result.ErrorMsg = "用户不存在";
                 }
                 else
                 {
@@ -135,24 +135,24 @@ namespace AccountingApp.Controllers
                         var u = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user.Username) }, CookieAuthenticationDefaults.AuthenticationScheme));
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, u, new AuthenticationProperties { IsPersistent = model.RememberMe, AllowRefresh = true });
                         //
-                        result.Msg = "登录成功";
+                        result.ErrorMsg = "登录成功";
                         result.Status = JsonResultStatus.Success;
-                        
-                        _logger.LogInformation($"{user.Username} login success");
+
+                        Logger.LogInformation($"{user.Username} login success");
                     }
                     else
                     {
                         result.Status = JsonResultStatus.RequestError;
-                        result.Msg = "用户名或密码错误";
+                        result.ErrorMsg = "用户名或密码错误";
 
-                        _logger.LogWarning($"{user.Username} login failed");
+                        Logger.LogWarning($"{user.Username} login failed");
                     }
                 }
             }
             else
             {
                 result.Status = JsonResultStatus.RequestError;
-                result.Msg = "请求参数异常！";
+                result.ErrorMsg = "请求参数异常！";
             }
             return Json(result);
         }

@@ -123,7 +123,6 @@ function _getChartOption(chartType, metaData) {
                             { type: 'average', name: '平均值' }
                         ]
                     }
-
                 };
                 option.series.push(ser);
                 for (var j = 0; j < metaData.data[i].length; j++) {
@@ -145,8 +144,8 @@ function loadChart(url, domId, chartType, title) {
     blockSmsChart.showLoading();
     $.get(url,
         function (data) {
-            if (data.Status === 200 || data.status === 200) {
-                var metaData = data.data;
+            if (data.Status === 200) {
+                var metaData = data.Result;
                 console.log('metaData:' + JSON.stringify(metaData));
                 if (metaData.names && metaData.names.length > 0) {
                     metaData.Title = title;
@@ -158,7 +157,7 @@ function loadChart(url, domId, chartType, title) {
                     document.getElementById(domId).style.display = 'none';
                 }
             } else {
-                layer.msg(data.msg);
+                layer.msg(data.ErrorMsg);
             }
         });
 }

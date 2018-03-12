@@ -1,20 +1,19 @@
-using System;
 using AccountingApp.Models;
+using AccountingApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using NPOI.HSSF.UserModel;
-using NPOI.SS.UserModel;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using AccountingApp.ViewModels;
 using WeihanLi.AspNetMvc.MvcSimplePager;
 using WeihanLi.Common.Helpers;
 using WeihanLi.Common.Models;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using WeihanLi.Extensions;
+using WeihanLi.Npoi;
 
 namespace AccountingApp.Controllers
 {
@@ -33,48 +32,13 @@ namespace AccountingApp.Controllers
             var bills = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => true, b => b.CreatedTime);
             if (bills != null && bills.Any())
             {
-                IWorkbook workbook = new HSSFWorkbook();
-                ISheet sheet = workbook.CreateSheet("账单记录");
-                // export excel
-                int i = 0;
-                var headRow = sheet.CreateRow(0);
-                headRow.CreateCell(0, CellType.String).SetCellValue("账单标题");
-                headRow.CreateCell(1, CellType.String).SetCellValue("账单类型");
-                headRow.CreateCell(2, CellType.String).SetCellValue("账单金额");
-                headRow.CreateCell(3, CellType.String).SetCellValue("账单描述");
-                headRow.CreateCell(3, CellType.String).SetCellValue("账单详情");
-                headRow.CreateCell(4, CellType.String).SetCellValue("创建人");
-                headRow.CreateCell(5, CellType.String).SetCellValue("创建时间");
-
-                foreach (var bill in bills)
+                using (var stream = new MemoryStream())
                 {
-                    i++;
-                    var row = sheet.CreateRow(i);
-                    row.CreateCell(0, CellType.String).SetCellValue(bill.BillTitle);
-                    row.CreateCell(1, CellType.String).SetCellValue(bill.AccountBillType.TypeName);
-                    row.CreateCell(2, CellType.String).SetCellValue(bill.BillFee.ToString("0.00"));
-                    row.CreateCell(3, CellType.String).SetCellValue(bill.BillDescription);
-                    row.CreateCell(4, CellType.String).SetCellValue(bill.BillDetails);
-                    row.CreateCell(5, CellType.String).SetCellValue(bill.CreatedBy);
-                    row.CreateCell(6, CellType.String).SetCellValue(bill.CreatedTime.ToString("yyyy-MM-dd HH:mm:ss"));
+                    bills.ToExcelStream(stream);
+                    return File(stream.ToArray(), "application/octet-stream", "Bills.xls");
                 }
-
-                // 自动调整单元格的宽度
-                sheet.AutoSizeColumn(0);
-                sheet.AutoSizeColumn(1);
-                sheet.AutoSizeColumn(2);
-                sheet.AutoSizeColumn(3);
-                sheet.AutoSizeColumn(4);
-                sheet.AutoSizeColumn(5);
-                sheet.AutoSizeColumn(6);
-                var stream = new MemoryStream();
-                workbook.Write(stream);
-                return File(stream.ToArray(), "application/octet-stream", "Bills.xls");
             }
-            else
-            {
-                return Content("没有数据需要导出");
-            }
+            return Content("没有数据需要导出");
         }
 
         [HttpGet]
@@ -221,14 +185,14 @@ namespace AccountingApp.Controllers
             if (id <= 0 || status <= 0)
             {
                 result.Status = JsonResultStatus.RequestError;
-                result.Msg = "请求参数异常";
+                result.ErrorMsg = "请求参数异常";
                 return Json(result);
             }
             Bill bill = new Bill { PKID = id, BillStatus = status };
             bill.UpdatedBy = User.Identity.Name;
             await BusinessHelper.BillHelper.UpdateAsync(bill, b => b.BillStatus);
             result.Status = JsonResultStatus.Success;
-            result.Msg = "操作成功";
+            result.ErrorMsg = "操作成功";
             return Json(result);
         }
 

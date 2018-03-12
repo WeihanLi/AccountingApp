@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using AccountingApp.Models;
+﻿using AccountingApp.Models;
 using AccountingApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using WeihanLi.Common.Models;
 
 namespace AccountingApp.Controllers
@@ -38,7 +38,7 @@ namespace AccountingApp.Controllers
             return Json(new JsonResultModel
             {
                 Status = JsonResultStatus.Success,
-                Data = reportModel
+                Result = reportModel
             });
         }
 
@@ -60,7 +60,7 @@ namespace AccountingApp.Controllers
             return Json(new JsonResultModel
             {
                 Status = JsonResultStatus.Success,
-                Data = reportModel
+                Result = reportModel
             });
         }
 

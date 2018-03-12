@@ -10,16 +10,16 @@ namespace AccountingApp.Controllers
     [AccessControl]
     public class BaseController : Controller
     {
-        protected readonly AccountingDbContext _context;
+        protected readonly AccountingDbContext DbContext;
 
-        protected readonly ILogger _logger;
+        protected readonly ILogger Logger;
 
         private readonly object _locker = new object();
 
-        public BaseController(AccountingDbContext context, ILogger<BaseController> logger)
+        public BaseController(AccountingDbContext context, ILogger logger)
         {
-            _context = context;
-            _logger = logger;
+            DbContext = context;
+            Logger = logger;
         }
 
         private Helper.BusinessHelper businessHelper;
@@ -34,7 +34,7 @@ namespace AccountingApp.Controllers
                     {
                         if (businessHelper == null)
                         {
-                            businessHelper = new Helper.BusinessHelper(_context);
+                            businessHelper = new Helper.BusinessHelper(DbContext);
                         }
                     }
                 }

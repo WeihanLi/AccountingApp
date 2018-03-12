@@ -77,7 +77,7 @@
             $("#btnLogin").attr("disabled", "disabled");
             $.post("Logon", {"Username":username,"Password":password,"RememberMe":remember},function(data,status){
                 if (status == "success") {
-                    if (data.status == 200) {
+                    if (data.Status === 200) {
                         if (returnUrl) {
                             location.href = returnUrl;
                         } else {
@@ -85,13 +85,13 @@
                         }
                     }
                     else {
-                        layer.msg(data.msg);
+                        layer.msg(data.ErrorMsg);
                         $("#inputPassword").val('');
                         $("#btnLogin").removeAttr("disabled");
                         $("#btnLogin").text("登录");
                     }
                 } else {
-                    layer.msg("登录失败,请稍后重试");
+                    layer.msg("服务器异常,请稍后重试");
                     $("#inputPassword").val('');
                     $("#btnLogin").removeAttr("disabled");
                     $("#btnLogin").text("登录");
