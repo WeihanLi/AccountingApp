@@ -31,7 +31,7 @@ namespace AccountingApp.Controllers
             var bills = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => true, b => b.CreatedTime);
             if (bills != null && bills.Any())
             {
-                return File(bills.ToExcelBytes(), "application/octet-stream", "Bills.xls");
+                return File(bills.ToExcelBytes(), "application/octet-stream", "Bills.xlsx");
             }
             return Content("没有数据需要导出");
         }
