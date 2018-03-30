@@ -22,23 +22,23 @@ namespace AccountingApp.Controllers
             Logger = logger;
         }
 
-        private Helper.BusinessHelper businessHelper;
+        private Helper.BusinessHelper _businessHelper;
 
         protected Helper.BusinessHelper BusinessHelper
         {
             get
             {
-                if (businessHelper == null)
+                if (_businessHelper == null)
                 {
                     lock (_locker)
                     {
-                        if (businessHelper == null)
+                        if (_businessHelper == null)
                         {
-                            businessHelper = new Helper.BusinessHelper(DbContext);
+                            _businessHelper = new Helper.BusinessHelper(DbContext);
                         }
                     }
                 }
-                return businessHelper;
+                return _businessHelper;
             }
         }
     }
