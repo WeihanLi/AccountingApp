@@ -4,12 +4,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-
-#if !DEBUG
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Rewrite;
-#endif
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,15 +54,6 @@ namespace AccountingApp
                     options.SerializerSettings.ContractResolver = new DefaultContractResolver();
                 });
 
-#if !DEBUG
-            // enforce https
-            // requires all requests use HTTPS
-            services.Configure<MvcOptions>(options =>
-            {
-                options.Filters.Add(new RequireHttpsAttribute());
-            });
-#endif
-
             //add AddAccessControlHelper
             services.AddAccessControlHelper<AccountingActionAccessStrategy, AccountingControlAccessStrategy>();
 
@@ -76,7 +61,7 @@ namespace AccountingApp
             //reslove a exception on ef core,refer to https://github.com/aspnet/EntityFramework/issues/7762
             services.AddScoped<Models.AccountingDbContext>();
 
-            DependencyResolver.SetDependencyResolver(new MicrosoftExtensionDependencyResolver(services.BuildServiceProvider()));
+            DependencyResolver.SetDependencyResolver(services.BuildServiceProvider());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -101,12 +86,7 @@ namespace AccountingApp
             app.UseStaticFiles();
 
             app.UseMvcWithDefaultRoute();
-#if !DEBUG
-            // https://docs.microsoft.com/en-us/aspnet/core/security/enforcing-ssl#require-ssl
-            // redirects all HTTP requests to HTTPS
-            app.UseRewriter(new RewriteOptions().AddRedirectToHttps());
 
-#endif
             // 权限控制
             app.UseAccessControlHelper();
             // Initialize
