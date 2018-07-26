@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetCore.NPOI" Version="1.0.2" />
+    <PackageReference Include="DotNetCore.NPOI" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.1" />
@@ -23,14 +23,8 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0.0" />
     <PackageReference Include="WeihanLi.AspNetMvc.AccessControlHelper" Version="1.3.1" />
     <PackageReference Include="WeihanLi.AspNetMvc.MvcSimplePager" Version="1.0.0" />
-    <PackageReference Include="WeihanLi.Common" Version="1.0.8.1" />
+    <PackageReference Include="WeihanLi.Common" Version="1.0.9.1" />
     <PackageReference Include="WeihanLi.EntityFramework.DbDescriptionHelper" Version="0.8.0" />
-    <PackageReference Include="WeihanLi.Npoi" Version="1.0.4.2" />
-  </ItemGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+    <PackageReference Include="WeihanLi.Npoi" Version="1.0.5" />
   </ItemGroup>
 </Project>
