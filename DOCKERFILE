@@ -8,6 +8,6 @@ RUN dotnet restore && dotnet publish -c Release -o out
 # build runtime image
 FROM microsoft/aspnetcore:2.0
 WORKDIR app
-COPY --from=build-env /app/MockingJ.Identity/out .
+COPY --from=build-env /app/AccountingApp/out .
 EXPOSE 80
 ENTRYPOINT ["dotnet", "AccountingApp.dll"]
