@@ -89,8 +89,6 @@ namespace AccountingApp
 
             // 权限控制
             app.UseAccessControlHelper();
-            // Initialize
-            DataAccess.DbInitializer.Initialize(context);
 
             // FluentSettings for WeihanLi.Npoi
             FluentSettingForExcel();

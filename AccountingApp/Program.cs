@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore;
+﻿using System.IO;
+using AccountingApp.Models;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AccountingApp
 {
@@ -15,6 +17,13 @@ namespace AccountingApp
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
                 .Build();
+
+            // Initialize
+            using (var scope = host.Services.CreateScope())
+            {
+                DataAccess.DbInitializer.Initialize(scope.ServiceProvider.GetRequiredService<AccountingDbContext>());
+            }
+
             host.Run();
         }
     }
