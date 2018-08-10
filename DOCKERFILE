@@ -4,7 +4,7 @@ WORKDIR app
 # copy everything and build
 COPY . .
 RUN dotnet restore 
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -r centos-x64 -o out
 
 # build runtime image
 FROM microsoft/aspnetcore:2.0
