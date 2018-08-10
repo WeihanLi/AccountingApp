@@ -3,7 +3,8 @@ WORKDIR app
 
 # copy everything and build
 COPY . .
-RUN dotnet restore && dotnet publish -c Release -o out
+RUN dotnet restore 
+RUN dotnet publish -c Release -o out
 
 # build runtime image
 FROM microsoft/aspnetcore:2.0
