@@ -33,7 +33,7 @@ namespace AccountingApp
         {
             // Add db service
             // MySql
-            services.AddDbContext<Models.AccountingDbContext>(options => options.UseMySql(Configuration.GetConnectionString("MySqlConnection")));
+            services.AddDbContext<Models.AccountingDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("AccountingConnection")));
 
             //Cookie Authentication
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
