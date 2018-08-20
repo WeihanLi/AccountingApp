@@ -19,7 +19,7 @@ docker build -t accountingapp .
 ### Run in container
 
 ``` bash
-docker run -P --name accountingapp-demo accountingapp
+docker run -P --rm --name accountingapp-demo accountingapp
 ```
 
 ## Contact

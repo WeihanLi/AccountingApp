@@ -5,10 +5,6 @@
     <MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <AssemblyName>AccountingApp</AssemblyName>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="DotNetCore.NPOI" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
