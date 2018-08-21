@@ -2,7 +2,6 @@
 using AccountingApp.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,14 +15,9 @@ namespace AccountingApp
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build().ReplacePlaceholders();
+            Configuration = configuration.ReplacePlaceholders();
         }
 
         public IConfiguration Configuration { get; }
@@ -32,7 +26,7 @@ namespace AccountingApp
         public void ConfigureServices(IServiceCollection services)
         {
             // Add db service
-            services.AddDbContext<Models.AccountingDbContext>(options => options.UseSqlite(Configuration.GetConnectionString("AccountingConnection")));
+            services.AddDbContext<Models.AccountingDbContext>(options => options.UseMySql(Configuration.GetConnectionString("AccountingConnection")));
 
             //Cookie Authentication
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -56,38 +50,22 @@ namespace AccountingApp
             //add AddAccessControlHelper
             services.AddAccessControlHelper<AccountingActionAccessStrategy, AccountingControlAccessStrategy>();
 
-            //DbContext
-            //reslove a exception on ef core,refer to https://github.com/aspnet/EntityFramework/issues/7762
-            services.AddScoped<Models.AccountingDbContext>();
-
             DependencyResolver.SetDependencyResolver(services.BuildServiceProvider());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, Models.AccountingDbContext context)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
             // add log4net
             loggerFactory.AddLog4Net();
-
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
-
+            app.UseStaticFiles();
             // Add ASP.NET Core authentication
             app.UseAuthentication();
-            app.UseStaticFiles();
-
-            app.UseMvcWithDefaultRoute();
-
             // 权限控制
             app.UseAccessControlHelper();
+            app.UseMvcWithDefaultRoute();
 
             // FluentSettings for WeihanLi.Npoi
             FluentSettingForExcel();
