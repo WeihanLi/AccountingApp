@@ -13,13 +13,13 @@ This a simple accounting app powered by asp.net core.
 ### Build docker image
 
 ``` bash
-docker build -t accountingapp .
+docker build -t weihanli/accountingapp .
 ```
 
 ### Run in container
 
 ``` bash
-docker run -P --rm --name accountingapp-demo accountingapp
+docker run -P --rm --name accountingapp-demo weihanli/accountingapp
 ```
 
 ## Contact
