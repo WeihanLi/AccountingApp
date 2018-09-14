@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetCore.NPOI" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.1" />
@@ -21,6 +20,6 @@
     <PackageReference Include="WeihanLi.AspNetMvc.MvcSimplePager" Version="1.0.0" />
     <PackageReference Include="WeihanLi.Common" Version="1.0.9.1" />
     <PackageReference Include="WeihanLi.EntityFramework.DbDescriptionHelper" Version="0.8.0" />
-    <PackageReference Include="WeihanLi.Npoi" Version="1.0.5" />
+    <PackageReference Include="WeihanLi.Npoi" Version="1.0.6" />
   </ItemGroup>
 </Project>
