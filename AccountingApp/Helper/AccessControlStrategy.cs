@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WeihanLi.AspNetMvc.AccessControlHelper;
 
 namespace AccountingApp.Helper
@@ -12,7 +11,7 @@ namespace AccountingApp.Helper
 
     public class AccountingActionAccessStrategy : IActionAccessStrategy
     {
-        public bool IsActionCanAccess(HttpContext httpContext, string accessKey) => true;
+        public bool IsActionCanAccess(string accessKey) => true;
 
         public IActionResult DisallowedCommonResult => new ContentResult { Content = "You have no permission", ContentType = "text/plain" };
         public JsonResult DisallowedAjaxResult => new JsonResult("You have no permission");
