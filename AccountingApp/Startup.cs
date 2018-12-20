@@ -56,6 +56,7 @@ namespace AccountingApp
                     options.ProtectParams = new[]
                     {
                         "Id",
+                        "pkid"
                     };
                     options.AddProtectValue<JsonResult>(r => r.Value);
                 });
