@@ -11,9 +11,11 @@ namespace AccountingApp.Helper
 
     public class AccountingActionAccessStrategy : IActionAccessStrategy
     {
-        public bool IsActionCanAccess(string accessKey) => true;
+        public bool IsCanAccess(string accessKey) => true;
 
         public IActionResult DisallowedCommonResult => new ContentResult { Content = "You have no permission", ContentType = "text/plain" };
+        IActionResult IActionAccessStrategy.DisallowedAjaxResult => DisallowedAjaxResult;
+
         public JsonResult DisallowedAjaxResult => new JsonResult("You have no permission");
     }
 }

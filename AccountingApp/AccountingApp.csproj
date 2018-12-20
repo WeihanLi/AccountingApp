@@ -15,11 +15,12 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.1" />
-    <PackageReference Include="WeihanLi.AspNetMvc.AccessControlHelper" Version="1.4.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.4" />
+    <PackageReference Include="WeihanLi.AspNetMvc.AccessControlHelper" Version="1.5.0" />
     <PackageReference Include="WeihanLi.AspNetMvc.MvcSimplePager" Version="1.0.0" />
     <PackageReference Include="WeihanLi.Common" Version="1.0.10" />
+    <PackageReference Include="WeihanLi.DataProtection" Version="0.4.2" />
     <PackageReference Include="WeihanLi.EntityFramework.DbDescriptionHelper" Version="0.8.0" />
-    <PackageReference Include="WeihanLi.Npoi" Version="1.1.0" />
+    <PackageReference Include="WeihanLi.Npoi" Version="1.2.0" />
   </ItemGroup>
 </Project>

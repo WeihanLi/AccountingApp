@@ -3,12 +3,14 @@ using AccountingApp.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using WeihanLi.Common;
+using WeihanLi.DataProtection;
 using WeihanLi.Npoi;
 
 namespace AccountingApp
@@ -46,7 +48,17 @@ namespace AccountingApp
                 {
                     options.SerializerSettings.ContractResolver = new DefaultContractResolver();
                 });
-
+            services.AddDataProtection()
+                .AddParamsProtection(options =>
+                {
+                    options.ExpiresIn = 10;
+                    options.AllowUnprotectedParams = true;
+                    options.ProtectParams = new[]
+                    {
+                        "Id",
+                    };
+                    options.AddProtectValue<JsonResult>(r => r.Value);
+                });
             //add AddAccessControlHelper
             services.AddAccessControlHelper<AccountingActionAccessStrategy, AccountingControlAccessStrategy>();
 
