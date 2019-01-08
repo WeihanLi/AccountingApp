@@ -10,7 +10,65 @@ variables:
   imageName: '$(dockerId)/accountingapp'
 
 steps:
+
 - script: |
     docker build -f Dockerfile -t $(imageName) .
     docker login -u $(dockerId) -p $(pswd)
     docker push $(imageName)
+
+- task: SSH@0
+  displayName: 'Run shell inline on remote machine'
+  inputs:
+    sshEndpoint: 'weihanli-vm'
+    runOptions: inline
+
+    inline: |
+     containers=$(docker ps -q --filter name=accountingapp)
+     if test -n "$containers"; then
+      docker stop $(docker ps -q --filter name=accountingapp) >> /dev/null 2>&1
+      rc=$?
+      if [[ $rc != 0 ]];
+      then
+       echo 'failed to stop container...'
+       exit $rc;
+      fi
+     fi
+     
+     containers1=$(docker ps -q -a --filter name=accountingapp)
+     if test -n "$containers1"; then
+      docker rm $(docker ps -q -a --filter name=accountingapp) >> /dev/null 2>&1
+      rc=$?
+      if [[ $rc != 0 ]];
+      then
+       echo 'failed to remove container...'
+       exit $rc;
+      fi
+     fi
+     
+     
+     docker pull weihanli/accountingapp:latest >> /dev/null 2>&1
+     rc=$?
+     if [[ $rc != 0 ]];
+     then
+      echo 'failed to pull container...'
+      exit $rc;
+     fi
+     
+     docker run -d -p 6020:80 --name accountingapp weihanli/accountingapp:latest >> /dev/null 2>&1
+     rc=$?
+     if [[ $rc != 0 ]];
+     then
+      echo 'failed to run container...'
+      exit $rc;
+     fi
+     
+     danglings=$(docker images -f "dangling=true" -q)
+     if test -n "$danglings"; then
+      docker rmi $(docker images -f "dangling=true" -q) >> /dev/null 2>&1
+      rc=$?
+      if [[ $rc != 0 ]];
+      then
+       echo 'failed to remove danglings container...'
+       exit $rc;
+      fi
+     fi
