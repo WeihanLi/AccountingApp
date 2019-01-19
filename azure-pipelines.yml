@@ -46,7 +46,7 @@ steps:
      fi
      
      
-     docker pull weihanli/accountingapp:latest >> /dev/null 2>&1
+     docker pull $(imageName):latest >> /dev/null 2>&1
      rc=$?
      if [[ $rc != 0 ]];
      then
@@ -54,7 +54,7 @@ steps:
       exit $rc;
      fi
      
-     docker run -d -p 6020:80 --name accountingapp weihanli/accountingapp:latest >> /dev/null 2>&1
+     docker run -d -p 6020:80 --name accountingapp $(imageName):latest >> /dev/null 2>&1
      rc=$?
      if [[ $rc != 0 ]];
      then
