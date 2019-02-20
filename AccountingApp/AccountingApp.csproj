@@ -24,4 +24,10 @@
     <PackageReference Include="WeihanLi.EntityFramework.DbDescriptionHelper" Version="0.8.0" />
     <PackageReference Include="WeihanLi.Npoi" Version="1.3.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
