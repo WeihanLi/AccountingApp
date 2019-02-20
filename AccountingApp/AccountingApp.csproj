@@ -29,5 +29,9 @@
     <Content Update="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Compile Remove="Log\**" />
+    <Content Remove="Log\**" />
+    <EmbeddedResource Remove="Log\**" />
+    <None Remove="Log\**" />
   </ItemGroup>
 </Project>
