@@ -1,10 +1,10 @@
-﻿using AccountingApp.Models;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AccountingApp.Models;
+using Microsoft.EntityFrameworkCore;
 using WeihanLi.Extensions;
 
 namespace AccountingApp.DataAccess
@@ -47,10 +47,10 @@ namespace AccountingApp.DataAccess
             {
                 data = await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba.And(t => !t.IsDeleted)).OrderByDescending(orderbyLambda).ToListAsync();
             }
-            var types = _dbEntity.Set<BillType>().AsNoTracking().Where(t => !t.IsDeleted);
+            var types = await _dbEntity.Set<BillType>().AsNoTracking().ToArrayAsync();
             foreach (var item in data)
             {
-                item.AccountBillType = await types.FirstOrDefaultAsync(t => t.PKID == item.BillType);
+                item.AccountBillType = types.FirstOrDefault(t => t.PKID == item.BillType);
             }
             return data;
         }
@@ -67,10 +67,10 @@ namespace AccountingApp.DataAccess
             {
                 data = await _dbEntity.Set<Bill>().AsNoTracking().Where(whereLamdba.And(t => !t.IsDeleted)).OrderByDescending(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
             }
-            var types = _dbEntity.Set<BillType>().AsNoTracking().Where(t => !t.IsDeleted);
+            var types = await _dbEntity.Set<BillType>().AsNoTracking().ToArrayAsync();
             foreach (var item in data)
             {
-                item.AccountBillType = await types.FirstOrDefaultAsync(t => t.PKID == item.BillType);
+                item.AccountBillType = types.FirstOrDefault(t => t.PKID == item.BillType);
             }
             return data;
         }

@@ -48,6 +48,7 @@ namespace AccountingApp
                 {
                     options.SerializerSettings.ContractResolver = new DefaultContractResolver();
                 });
+
             services.AddDataProtection()
                 .AddParamsProtection(options =>
                 {
@@ -60,10 +61,11 @@ namespace AccountingApp
                     };
                     options.AddProtectValue<JsonResult>(r => r.Value);
                 });
-            //add AddAccessControlHelper
-            services.AddAccessControlHelper<AccountingActionAccessStrategy, AccountingControlAccessStrategy>();
 
-            DependencyResolver.SetDependencyResolver(services.BuildServiceProvider());
+            //add AddAccessControlHelper
+            services.AddAccessControlHelper<AccountingResourceAccessStrategy, AccountingControlAccessStrategy>();
+
+            DependencyResolver.SetDependencyResolver(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -73,13 +75,14 @@ namespace AccountingApp
             loggerFactory.AddDebug();
             // add log4net
             loggerFactory.AddLog4Net();
+
             app.UseStaticFiles();
             // Add ASP.NET Core authentication
             app.UseAuthentication();
             // 权限控制
-            app.UseAccessControlHelper();
-            app.UseMvcWithDefaultRoute();
+            // app.UseAccessControlHelper();
 
+            app.UseMvcWithDefaultRoute();
             // FluentSettings for WeihanLi.Npoi
             FluentSettingForExcel();
         }

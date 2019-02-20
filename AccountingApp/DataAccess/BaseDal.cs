@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using WeihanLi.Extensions;
 
 namespace AccountingApp.DataAccess
@@ -20,7 +20,7 @@ namespace AccountingApp.DataAccess
         public async Task<T> AddAsync(T entity)
         {
             entity.UpdatedBy = entity.CreatedBy;
-            entity.CreatedTime = DateTime.Now;            
+            entity.CreatedTime = DateTime.Now;
             entity.UpdatedTime = DateTime.Now;
             _dbEntity.Set<T>().Add(entity);
             await _dbEntity.SaveChangesAsync();
@@ -36,7 +36,7 @@ namespace AccountingApp.DataAccess
                 entity.UpdatedTime = DateTime.Now;
                 _dbEntity.Set<T>().Add(entity);
             }
-            return await _dbEntity.SaveChangesAsync();            
+            return await _dbEntity.SaveChangesAsync();
         }
 
         /// <summary>
@@ -141,8 +141,8 @@ namespace AccountingApp.DataAccess
 
         public async Task<int> DeleteAsync(Expression<Func<T, bool>> whereLamdba, string updatedBy)
         {
-            var list = _dbEntity.Set<T>().Where(whereLamdba.And(t => !t.IsDeleted)).ToList();
-            if (list != null && list.Any())
+            var list = await _dbEntity.Set<T>().Where(whereLamdba.And(t => !t.IsDeleted)).ToListAsync();
+            if (list.Count > 0)
             {
                 for (int i = 0; i < list.Count; i++)
                 {

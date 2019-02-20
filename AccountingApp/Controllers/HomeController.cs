@@ -1,10 +1,10 @@
-﻿using AccountingApp.Models;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using AccountingApp.Models;
 using AccountingApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using WeihanLi.Common.Models;
 
 namespace AccountingApp.Controllers
@@ -48,7 +48,7 @@ namespace AccountingApp.Controllers
         /// <returns></returns>
         public async Task<IActionResult> BillPayTypeSummary()
         {
-            var billPayItems = (await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => true, b => b.CreatedTime, true)).GroupBy(b => new { b.BillType, TypeName = b.AccountBillType.TypeName }).Select(g => new BasicReportModel { Name = g.Key.TypeName, Value = g.Sum(b => b.BillFee) }).ToArray();
+            var billPayItems = (await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => true, b => b.CreatedTime, true)).GroupBy(b => new { b.BillType, TypeName = b.AccountBillType?.TypeName }).Select(g => new BasicReportModel { Name = g.Key.TypeName, Value = g.Sum(b => b.BillFee) }).ToArray();
 
             var reportModel = new PieReportModel
             {
