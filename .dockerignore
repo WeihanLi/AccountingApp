@@ -11,8 +11,8 @@
 Dockerfile*
 **/*.trx
 **/*.md
-docker-compose.yml
-docker-compose.*.yml
+**.yml
+**.yaml
 .gitignore
 .gitattributes
 .dockerignore
