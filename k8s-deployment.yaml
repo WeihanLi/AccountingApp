@@ -5,10 +5,10 @@ metadata:
   labels:
     app: accountingapp-deployment
 spec:  # 定义资源的状态。
-  replicas: 2 # 定义我们想运行多少个Pod，在这里我们希望运行2个
+  replicas: 3 # 定义我们想运行多少个Pod
   selector:
     matchLabels: # 定义该部署匹配哪些Pod
-      app: accountingapp
+      app: accountingapp-pod
   minReadySeconds: 5 # 可选，指定Pod可以变成可用状态的最小秒数，默认是0
   strategy: # 指定更新版本时，部署使用的策略
     type: RollingUpdate # 策略类型，使用RollingUpdate可以保证部署期间服务不间断
@@ -18,7 +18,7 @@ spec:  # 定义资源的状态。
   template: # 用来指定Pod的模板，与Pod的定义类似
     metadata:
       labels: # 根据模板创建的Pod会被贴上该标签，与上面的matchLabels对应
-        app: accountingapp
+        app: accountingapp-pod
     spec:
       containers:
         - name: accountingapp

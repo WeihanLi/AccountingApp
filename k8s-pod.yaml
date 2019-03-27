@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod # 定义Kubernetes资源的类型为Pod
 metadata:
-  name: accoutingapp-pod # 定义资源的名称
+  name: accountingapp-pod # 定义资源的名称
   labels: # 为Pod贴上标签，后面会介绍其用处
     app: accountingapp-pod
 

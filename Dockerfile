@@ -2,10 +2,13 @@
 FROM microsoft/dotnet:2.2-sdk-alpine AS build-env
 WORKDIR /app
 
+# Copy csproj and restore as distinct layers
+COPY .AccountingApp/*.csproj ./
+RUN dotnet restore
+
 # copy everything and build
 COPY . .
-RUN dotnet restore && \
-    dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o out
 
 # build runtime image
 # mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine for later use

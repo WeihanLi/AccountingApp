@@ -3,7 +3,7 @@ solution: AccountingApp.sln
 
 # runtime config
 mono: none
-dotnet: 2.2.202
+dotnet: 2.2.0
 dist: trusty
 
 # branch build config
