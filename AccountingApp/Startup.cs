@@ -29,7 +29,7 @@ namespace AccountingApp
         {
             // Add db service
             services.AddDbContext<Models.AccountingDbContext>(options => options.UseMySql(Configuration.GetConnectionString("AccountingConnection")));
-
+            services.AddHealthChecks();
             //Cookie Authentication
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
@@ -71,12 +71,11 @@ namespace AccountingApp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-            // add log4net
+            // add
             loggerFactory.AddLog4Net();
-
+            app.UseHealthChecks(new PathString("/health"));
             app.UseStaticFiles();
+
             // Add ASP.NET Core authentication
             app.UseAuthentication();
             // 权限控制
