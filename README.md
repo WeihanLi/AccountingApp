@@ -25,7 +25,7 @@ docker run -P --rm --name accountingapp-demo weihanli/accountingapp
 ### Deploy in k8s
 
 ``` bash
-kubectl create -f k8s-deployment.yaml
+kubectl apply -f k8s-deployment.yaml
 
 kubectl expose deployment accountingapp-deployment --type=LoadBalancer --port=8092 --target-port=80 --name accountingapp-deployment
 ```
