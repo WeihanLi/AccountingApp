@@ -4,10 +4,10 @@ metadata:
   name: accountingapp-service # 定义资源的名称
 spec:
   selector: # 指定对应的Pod
-    app: accountingapp-pod # 指定Pod的标签为k8s-net-pod
+    app: accountingapp # 指定Pod的标签
   ports:
   - protocol: TCP # 协议类型
     port: 80 # 指定Service访问的端口
     targetPort: 80 # 指定Service转发请求的端口
-    nodePort: 30000
+    nodePort: 13254
   type: NodePort # 指定Service的类型，在这里使用NodePort来对外访问

@@ -6,11 +6,11 @@ spec:
   replicas: 3 # 指定pod实例的个数
   selector: # pod选择器
     matchLabels: # 指定匹配的标签
-      app: accountingapp-pod # 指定Pod的标签为accountingapp-pod
+      app: accountingapp # 指定Pod的标签为accountingapp-pod
   template: # 创建新的pod模板配置
     metadata:
       labels:
-        app: accountingapp-pod # 指定使用哪个pod
+        app: accountingapp # 指定使用哪个pod
     spec:
       containers:
       - name: accountingapp-replicaset

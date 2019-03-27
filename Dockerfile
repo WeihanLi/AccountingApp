@@ -3,7 +3,7 @@ FROM microsoft/dotnet:2.2-sdk-alpine AS build-env
 WORKDIR /app
 
 # Copy csproj and restore as distinct layers
-COPY .AccountingApp/*.csproj ./
+COPY ./AccountingApp/*.csproj ./
 RUN dotnet restore
 
 # copy everything and build

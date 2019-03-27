@@ -3,13 +3,13 @@ kind: Deployment # 定义Kubernetes资源的类型为Deployment
 metadata:
   name: accountingapp-deployment # 定义资源的名称
   labels:
-    app: accountingapp-deployment
+    app: accountingapp
 spec:  # 定义资源的状态。
   replicas: 3 # 定义我们想运行多少个Pod
   selector:
     matchLabels: # 定义该部署匹配哪些Pod
-      app: accountingapp-pod
-  minReadySeconds: 5 # 可选，指定Pod可以变成可用状态的最小秒数，默认是0
+      app: accountingapp
+  minReadySeconds: 1 # 可选，指定Pod可以变成可用状态的最小秒数，默认是0
   strategy: # 指定更新版本时，部署使用的策略
     type: RollingUpdate # 策略类型，使用RollingUpdate可以保证部署期间服务不间断
     rollingUpdate:
@@ -18,7 +18,7 @@ spec:  # 定义资源的状态。
   template: # 用来指定Pod的模板，与Pod的定义类似
     metadata:
       labels: # 根据模板创建的Pod会被贴上该标签，与上面的matchLabels对应
-        app: accountingapp-pod
+        app: accountingapp
     spec:
       containers:
         - name: accountingapp
