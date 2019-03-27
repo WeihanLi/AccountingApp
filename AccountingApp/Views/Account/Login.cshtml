@@ -1,4 +1,6 @@
-﻿@{
+﻿@using System.Net
+@using System.Net.Sockets
+@{
     Layout = null;
 }
 <!DOCTYPE html>
@@ -35,6 +37,11 @@
         </section>
         <footer>
             <p>&copy; @DateTime.Now.Year</p>
+            <p>
+                Host information: <br />
+                HostName: <strong> @(Dns.GetHostName()) </strong><br />
+                HostIp: <strong>@(Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault(_ => _.AddressFamily == AddressFamily.InterNetwork)) </strong>
+            </p>
         </footer>
     </div>
     <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -75,7 +82,7 @@
             var returnUrl = GetQueryString("ReturnUrl");
             $("#btnLogin").text("登录中...");
             $("#btnLogin").attr("disabled", "disabled");
-            $.post("Logon", {"Username":username,"Password":password,"RememberMe":remember},function(data,status){
+            $.post("Logon", { "Username": username, "Password": password, "RememberMe": remember }, function (data, status) {
                 if (status == "success") {
                     if (data.Status === 200) {
                         if (returnUrl) {
@@ -106,4 +113,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
