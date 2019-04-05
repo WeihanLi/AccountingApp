@@ -22,4 +22,4 @@ steps:
     runOptions: inline
 
     inline: |
-     sudo kubectl set image deployment/accountingapp-deployment accountingapp=weihanli/homepage:latest
+     kubectl set image deployment/accountingapp-deployment accountingapp=weihanli/homepage:latest
