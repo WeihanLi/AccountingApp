@@ -7,7 +7,7 @@ pool:
   vmImage: 'Ubuntu 16.04'
 
 variables:
-  tagName: '$(BUILD_BUILDNUMBER)'
+  tagName: '$(Build.BuildNumber)'
   imageName: '$(dockerId)/accountingapp:$(tagName)'
 
 steps:
