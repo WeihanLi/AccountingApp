@@ -27,4 +27,4 @@ steps:
     runOptions: inline
 
     inline: |
-     sudo kubectl set image deployment/accountingapp-deployment accountingapp=$(imageName)
+      sudo kubectl set image deployment/accountingapp-deployment accountingapp=$(imageName)
