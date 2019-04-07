@@ -5,7 +5,7 @@ metadata:
   labels:
     app: accountingapp
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: accountingapp
@@ -43,3 +43,18 @@ spec:
             periodSeconds: 60
           ports:
             - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: accountingapp-service
+spec:
+  selector:
+    app: accountingapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 31254
+  type: NodePort
