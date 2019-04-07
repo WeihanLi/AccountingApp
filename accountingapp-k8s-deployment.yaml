@@ -33,13 +33,13 @@ spec:
           readinessProbe:
             tcpSocket:
               port: 80
-            initialDelaySeconds: 180
+            initialDelaySeconds: 120
             periodSeconds: 60
           livenessProbe: # 存活探针定义
             httpGet:
               path: /Health #存活探针请求路径
               port: 80 #存活探针请求端口
-            initialDelaySeconds: 180
+            initialDelaySeconds: 120
             periodSeconds: 60
           ports:
             - containerPort: 80
