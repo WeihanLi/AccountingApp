@@ -48,7 +48,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: accountingapp-service
+  name: accountingapp
 spec:
   selector:
     app: accountingapp
