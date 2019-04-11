@@ -11,7 +11,7 @@ spec:
       app: redis
   minReadySeconds: 0
   strategy:
-    type: RollingUpdate # 策略类型，使用RollingUpdate可以保证部署期间服务不间断
+    type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 1
       maxSurge: 1
