@@ -2,6 +2,7 @@
 using AccountingApp.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
+using StackExchange.Redis;
 using WeihanLi.Common;
 using WeihanLi.DataProtection;
 using WeihanLi.Npoi;
+using WeihanLi.Redis;
 
 namespace AccountingApp
 {
@@ -60,11 +63,22 @@ namespace AccountingApp
                         "pkid"
                     };
                     options.AddProtectValue<JsonResult>(r => r.Value);
-                });
+                })
+                .PersistKeysToStackExchangeRedis(() => DependencyResolver.Current.GetRequiredService<IConnectionMultiplexer>().GetDatabase(5), "DataProtection-Keys")
+                ;
 
             //add AddAccessControlHelper
             services.AddAccessControlHelper<AccountingResourceAccessStrategy, AccountingControlAccessStrategy>();
-
+            services.AddRedisConfig(options =>
+            {
+#if !DEBUG
+                options.RedisServers = new[]
+                {
+                    new RedisServerConfiguration(Configuration.GetConnectionString("Redis")),
+                };
+#endif
+                options.DefaultDatabase = 2;
+            });
             DependencyResolver.SetDependencyResolver(services);
         }
 
