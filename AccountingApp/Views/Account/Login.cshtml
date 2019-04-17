@@ -1,6 +1,4 @@
-﻿@using System.Net
-@using System.Net.Sockets
-@{
+﻿@{
     Layout = null;
 }
 <!DOCTYPE html>
@@ -37,11 +35,6 @@
         </section>
         <footer>
             <p>&copy; @DateTime.Now.Year</p>
-            <p>
-                Host information: <br />
-                HostName: <strong> @(Dns.GetHostName()) </strong><br />
-                HostIp: <strong>@(Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault(_ => _.AddressFamily == AddressFamily.InterNetwork)) </strong>
-            </p>
         </footer>
     </div>
     <script src="~/lib/jquery/dist/jquery.js"></script>

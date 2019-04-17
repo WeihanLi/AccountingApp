@@ -1,6 +1,4 @@
-﻿@using System.Net
-@using System.Net.Sockets
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -60,7 +58,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - AccountingApp  &nbsp;&nbsp; HostIp: <strong>@(Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault(_ => _.AddressFamily == AddressFamily.InterNetwork)) </strong></p>
+            <p>&copy; @DateTime.Now.Year - AccountingApp</p>
         </footer>
     </div>
 
