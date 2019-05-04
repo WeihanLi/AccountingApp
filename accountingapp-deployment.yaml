@@ -31,10 +31,6 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "100m"
-          dnsConfig:
-            options:
-              - name: ndots
-                value: "1"
           readinessProbe:
             tcpSocket:
               port: 80
@@ -48,6 +44,10 @@ spec:
             periodSeconds: 60
           ports:
             - containerPort: 80
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
 
 ---
 apiVersion: v1
