@@ -12,7 +12,7 @@ RUN dotnet publish -c Release -o out
 
 # build runtime image
 # mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine for later use
-FROM microsoft/dotnet:2.2-aspnetcore-runtime
+FROM microsoft/dotnet:2.2-aspnetcore-runtime-alpine
 LABEL Maintainer="WeihanLi"
 WORKDIR /app
 COPY --from=build-env /app/AccountingApp/out .

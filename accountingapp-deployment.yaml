@@ -1,11 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: accountingapp-deployment
+  name: accountingapp
   labels:
     app: accountingapp
 spec:
-  replicas: 2
+  replicas: 1
+  revisionHistoryLimit: 0
   selector:
     matchLabels:
       app: accountingapp
@@ -29,17 +30,21 @@ spec:
           resources:
             limits:
               memory: "128Mi"
-              cpu: "200m"
+              cpu: "100m"
+          dnsConfig:
+            options:
+              - name: ndots
+                value: "1"
           readinessProbe:
             tcpSocket:
               port: 80
-            initialDelaySeconds: 120
-            periodSeconds: 60
+            initialDelaySeconds: 60
+            periodSeconds: 30
           livenessProbe: # 存活探针定义
             httpGet:
               path: /Health #存活探针请求路径
               port: 80 #存活探针请求端口
-            initialDelaySeconds: 120
+            initialDelaySeconds: 60
             periodSeconds: 60
           ports:
             - containerPort: 80
