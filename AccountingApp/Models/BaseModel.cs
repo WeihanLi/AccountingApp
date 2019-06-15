@@ -21,7 +21,7 @@ namespace AccountingApp.Models
         [ColumnDescription("更新人")]
         public string UpdatedBy { get; set; }
 
-        [Display(Name ="更新时间")]
+        [Display(Name = "更新时间")]
         [ColumnDescription("更新时间")]
         public DateTime UpdatedTime { get; set; }
 

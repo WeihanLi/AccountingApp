@@ -4,15 +4,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using WeihanLi.EntityFramework;
 using WeihanLi.Extensions;
 
 namespace AccountingApp.DataAccess
 {
-    public class BaseRepository<T> where T : Models.BaseModel
+    public class AccountingRepository<T> : EFRepository<Models.AccountingDbContext, T> where T : Models.BaseModel
     {
         protected readonly Models.AccountingDbContext _dbEntity;
 
-        public BaseRepository(Models.AccountingDbContext dbEntity)
+        public AccountingRepository(Models.AccountingDbContext dbEntity) : base(dbEntity)
         {
             _dbEntity = dbEntity;
         }
@@ -92,51 +93,6 @@ namespace AccountingApp.DataAccess
             entry.Property(m => m.UpdatedBy).IsModified = true;
             entry.Property(m => m.UpdatedTime).IsModified = true;
             return await _dbEntity.SaveChangesAsync() > 0;
-        }
-
-        public async Task<List<T>> SelectAsync<TKey>(Expression<Func<T, bool>> whereLamdba, Expression<Func<T, TKey>> orderbyLambda, bool isAsc = false)
-        {
-            if (isAsc)
-            {
-                return await _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba.And(t => !t.IsDeleted)).OrderBy(orderbyLambda).ToListAsync();
-            }
-            else
-            {
-                return await _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba.And(t => !t.IsDeleted)).OrderByDescending(orderbyLambda).ToListAsync();
-            }
-        }
-
-        public async Task<List<T>> SelectAsync<TKey>(int pageIndex, int pageSize, Expression<Func<T, bool>> whereLamdba, Expression<Func<T, TKey>> orderbyLambda, bool isAsc = false)
-        {
-            int offset = (pageIndex - 1) * pageSize;
-            if (isAsc)
-            {
-                return await _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba.And(t => !t.IsDeleted)).OrderBy(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
-            }
-            else
-            {
-                return await _dbEntity.Set<T>().AsNoTracking().Where(whereLamdba.And(t => !t.IsDeleted)).OrderByDescending(orderbyLambda).Skip(offset).Take(pageSize).ToListAsync();
-            }
-        }
-
-        public async Task<T> FetchAsync(int id)
-        {
-            return await _dbEntity.Set<T>().AsNoTracking().FirstOrDefaultAsync(e => e.PKID == id);
-        }
-
-        public async Task<T> FetchAsync(Expression<Func<T, bool>> whereLamdba)
-        {
-            return await _dbEntity.Set<T>().AsNoTracking().FirstOrDefaultAsync(whereLamdba);
-        }
-
-        public async Task<bool> ExistAsync(Expression<Func<T, bool>> whereLamdba)
-        {
-            return await _dbEntity.Set<T>().AsNoTracking().AnyAsync(whereLamdba.And(t => !t.IsDeleted));
-        }
-
-        public async Task<int> QueryCountAsync(Expression<Func<T, bool>> whereLamdba)
-        {
-            return await _dbEntity.Set<T>().AsNoTracking().CountAsync(whereLamdba.And(t => !t.IsDeleted));
         }
 
         public async Task<int> DeleteAsync(Expression<Func<T, bool>> whereLamdba, string updatedBy)

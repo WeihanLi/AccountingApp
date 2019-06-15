@@ -1,21 +1,25 @@
-﻿using AccountingApp.Models;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
+using AccountingApp.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using WeihanLi.AspNetMvc.AccessControlHelper;
 using WeihanLi.Common.Helpers;
 using WeihanLi.Common.Models;
+using WeihanLi.EntityFramework;
 
 namespace AccountingApp.Controllers
 {
     public class AccountController : BaseController
     {
-        public AccountController(AccountingDbContext context, ILogger<AccountController> logger) : base(context, logger)
+        private readonly IEFRepository<AccountingDbContext, User> repository;
+
+        public AccountController(IEFRepository<AccountingDbContext, User> userRepository, ILogger<AccountController> logger) : base(logger)
         {
+            repository = userRepository;
         }
 
         public IActionResult Index()
@@ -29,7 +33,7 @@ namespace AccountingApp.Controllers
             var result = new JsonResultModel();
             if (ModelState.IsValid)
             {
-                var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == User.Identity.Name);
+                var user = await repository.FetchAsync(u => u.Username == User.Identity.Name);
                 if (user == null)
                 {
                     result.Status = JsonResultStatus.ResourceNotFound;
@@ -45,7 +49,7 @@ namespace AccountingApp.Controllers
                 else
                 {
                     user.PasswordHash = SecurityHelper.SHA256_Encrypt(model.NewPassword);
-                    var isSuccess = await BusinessHelper.UserHelper.UpdateAsync(user, u => u.PasswordHash);
+                    var isSuccess = await repository.UpdateAsync(user, u => u.PasswordHash).ContinueWith(r => r.Result > 0);
                     if (isSuccess)
                     {
                         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -72,7 +76,7 @@ namespace AccountingApp.Controllers
                 result.ErrorMsg = "原密码不能为空";
                 return Json(result);
             }
-            var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == User.Identity.Name);
+            var user = await repository.FetchAsync(u => u.Username == User.Identity.Name);
             if (user == null)
             {
                 result.Status = JsonResultStatus.ResourceNotFound;
@@ -122,7 +126,7 @@ namespace AccountingApp.Controllers
             var result = new JsonResultModel();
             if (ModelState.IsValid)
             {
-                var user = await BusinessHelper.UserHelper.FetchAsync(u => u.Username == model.Username);
+                var user = await repository.FetchAsync(u => u.Username == model.Username);
                 if (user == null)
                 {
                     result.Status = JsonResultStatus.ResourceNotFound;

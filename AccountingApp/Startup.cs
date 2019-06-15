@@ -1,4 +1,5 @@
-﻿using AccountingApp.Helper;
+﻿using AccountingApp.DataAccess;
+using AccountingApp.Helper;
 using AccountingApp.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +14,7 @@ using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
 using WeihanLi.Common;
 using WeihanLi.DataProtection;
+using WeihanLi.EntityFramework;
 using WeihanLi.Npoi;
 using WeihanLi.Redis;
 
@@ -50,6 +52,8 @@ namespace AccountingApp
                 .AddJsonOptions(options =>
                 {
                     options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                    options.SerializerSettings.DateFormatString = "yyyyMMdd-HHmmss";
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
 
             services.AddDataProtection()
@@ -79,6 +83,11 @@ namespace AccountingApp
 #endif
                 options.DefaultDatabase = 2;
             });
+
+            services
+                .AddEFRepository()
+                .AddAccountingRepository();
+
             DependencyResolver.SetDependencyResolver(services);
         }
 

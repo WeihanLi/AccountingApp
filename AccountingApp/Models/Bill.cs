@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WeihanLi.EntityFramework.DbDescriptionHelper;
 
 namespace AccountingApp.Models
@@ -7,7 +7,7 @@ namespace AccountingApp.Models
     /// <summary>
     /// 账单
     /// </summary>
-    [TableDescription("Bills","账单")]
+    [TableDescription("Bills", "账单")]
     public class Bill : BaseModel
     {
         /// <summary>
@@ -58,7 +58,7 @@ namespace AccountingApp.Models
         [ColumnDescription("账单状态(0：新建,1：申请报销,2：已报销,3：取消申请报销)")]
         public int BillStatus { get; set; }
 
-        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        [ForeignKey("BillType")]
         public BillType AccountBillType { get; set; }
     }
 }

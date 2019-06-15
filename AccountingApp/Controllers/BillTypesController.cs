@@ -1,25 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using AccountingApp.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using WeihanLi.Common.Data;
+using WeihanLi.EntityFramework;
 
 namespace AccountingApp.Controllers
 {
     public class BillTypesController : BaseController
     {
-        public BillTypesController(AccountingDbContext context, ILogger<BillTypesController> logger) : base(context, logger)
+        private readonly DataAccess.AccountingRepository<BillType> repository;
+
+        public BillTypesController(DataAccess.AccountingRepository<BillType> repo, ILogger<BillTypesController> logger) : base(logger)
         {
+            repository = repo;
         }
 
         // GET: BillTypes
         public async Task<IActionResult> Index()
         {
-            return View(await BusinessHelper.BillTypeHelper.SelectAsync(t=>true,t=>t.CreatedTime));
+            return View(await repository.GetAllAsync().ContinueWith(r => r.Result.OrderByDescending(x => x.CreatedTime)));
         }
 
         // GET: BillTypes/Details/5
@@ -29,7 +31,7 @@ namespace AccountingApp.Controllers
             {
                 return NotFound();
             }
-            var billType = await BusinessHelper.BillTypeHelper.FetchAsync(m => m.PKID == id);
+            var billType = await repository.FetchAsync(m => m.PKID == id);
             if (billType == null)
             {
                 return NotFound();
@@ -44,7 +46,7 @@ namespace AccountingApp.Controllers
         }
 
         // POST: BillTypes/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -53,7 +55,7 @@ namespace AccountingApp.Controllers
             if (ModelState.IsValid)
             {
                 billType.CreatedBy = User.Identity.Name;
-                await BusinessHelper.BillTypeHelper.AddAsync(billType);
+                await repository.InsertAsync(billType);
                 return RedirectToAction("Index");
             }
             return View(billType);
@@ -67,7 +69,7 @@ namespace AccountingApp.Controllers
                 return NotFound();
             }
 
-            var billType = await BusinessHelper.BillTypeHelper.FetchAsync(m => m.PKID == id);
+            var billType = await repository.FetchAsync(m => m.PKID == id);
             if (billType == null)
             {
                 return NotFound();
@@ -76,7 +78,7 @@ namespace AccountingApp.Controllers
         }
 
         // POST: BillTypes/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -92,11 +94,11 @@ namespace AccountingApp.Controllers
                 try
                 {
                     billType.UpdatedBy = User.Identity.Name;
-                    await BusinessHelper.BillTypeHelper.UpdateAsync(billType,"TypeName","TypeDesc","UpdatedBy","UpdatedTime");
+                    await repository.UpdateAsync(billType, "TypeName", "TypeDesc", "UpdatedBy", "UpdatedTime");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await BusinessHelper.BillTypeHelper.ExistAsync(e => e.PKID == id))
+                    if (!await repository.ExistAsync(e => e.PKID == id))
                     {
                         return NotFound();
                     }
@@ -118,7 +120,7 @@ namespace AccountingApp.Controllers
                 return NotFound();
             }
 
-            var billType = await BusinessHelper.BillTypeHelper.FetchAsync(id.Value);
+            var billType = await repository.FindAsync(id.Value);
             if (billType == null)
             {
                 return NotFound();
@@ -132,7 +134,7 @@ namespace AccountingApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await BusinessHelper.BillTypeHelper.DeleteAsync(t => t.PKID == id,User.Identity.Name);
+            await repository.DeleteAsync(t => t.PKID == id, User.Identity.Name);
             return RedirectToAction("Index");
         }
     }

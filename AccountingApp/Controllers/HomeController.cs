@@ -4,14 +4,17 @@ using System.Threading.Tasks;
 using AccountingApp.Models;
 using AccountingApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WeihanLi.Common.Models;
+using WeihanLi.EntityFramework;
 
 namespace AccountingApp.Controllers
 {
     public class HomeController : BaseController
     {
-        public HomeController(AccountingDbContext context, ILogger<HomeController> logger) : base(context, logger)
+        public HomeController(ILogger<HomeController> logger) : base(logger)
         {
         }
 
@@ -26,7 +29,10 @@ namespace AccountingApp.Controllers
         /// <returns></returns>
         public async Task<IActionResult> BillPaySummary()
         {
-            var billPayItems = (await BusinessHelper.BillPayItemHelper.SelectAsync(b => true, b => b.BillId)).GroupBy(b => b.PersonName).Select(g => new BasicReportModel { Name = g.Key, Value = g.Sum(b => b.PayMoney) }).ToArray();
+            var billPayItems = (await HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, BillPayItem>>().GetAsync())
+                .GroupBy(b => b.PersonName)
+                .Select(g => new BasicReportModel { Name = g.Key, Value = g.Sum(b => b.PayMoney) })
+                .ToArray();
 
             var reportModel = new PieReportModel
             {
@@ -48,7 +54,15 @@ namespace AccountingApp.Controllers
         /// <returns></returns>
         public async Task<IActionResult> BillPayTypeSummary()
         {
-            var billPayItems = (await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => true, b => b.CreatedTime, true)).GroupBy(b => new { b.BillType, TypeName = b.AccountBillType?.TypeName }).Select(g => new BasicReportModel { Name = g.Key.TypeName, Value = g.Sum(b => b.BillFee) }).ToArray();
+            var billPayItems = (await HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, Bill>>()
+                .GetAsync(queryBuilderAction: builder => builder.WithInclude(x => x.Include(_ => _.AccountBillType)), HttpContext.RequestAborted))
+                .GroupBy(b => new { b.BillType, TypeName = b.AccountBillType?.TypeName })
+                .Select(g => new BasicReportModel
+                {
+                    Name = g.Key.TypeName,
+                    Value = g.Sum(b => b.BillFee)
+                })
+                .ToArray();
 
             var reportModel = new PieReportModel
             {

@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AccountingApp.DataAccess;
 using AccountingApp.Models;
 using AccountingApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using WeihanLi.AspNetMvc.MvcSimplePager;
+using WeihanLi.Common.Data;
 using WeihanLi.Common.Helpers;
 using WeihanLi.Common.Models;
+using WeihanLi.EntityFramework;
 using WeihanLi.Extensions;
 using WeihanLi.Npoi;
 
@@ -18,8 +22,11 @@ namespace AccountingApp.Controllers
 {
     public class BillsController : BaseController
     {
-        public BillsController(AccountingDbContext context, ILogger<BillsController> logger) : base(context, logger)
+        private readonly DalBill repository;
+
+        public BillsController(DalBill billRepository, ILogger<BillsController> logger) : base(logger)
         {
+            repository = billRepository;
         }
 
         // GET: Bill
@@ -28,7 +35,8 @@ namespace AccountingApp.Controllers
 
         public async Task<ActionResult> ExportBillsReport()
         {
-            var bills = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(b => true, b => b.CreatedTime);
+            var bills = await repository.GetAsync(queryBuilderAction: queryBuilder => queryBuilder
+            .WithOrderBy(query => query.OrderBy(x => x.CreatedTime)), HttpContext.RequestAborted);
             if (bills != null && bills.Any())
             {
                 return File(bills.ToExcelBytes(), "application/octet-stream", "Bills.xlsx");
@@ -40,13 +48,12 @@ namespace AccountingApp.Controllers
         [ActionName("List")]
         public async Task<ActionResult> ListAsync(int pageIndex = 1, int pageSize = 20)
         {
-            int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(b => true);
-            var data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, b => true, b => b.CreatedTime);
-            var list = data.ToPagedListModel(pageIndex, pageSize, totalCount);
-            return Json(list, new JsonSerializerSettings
-            {
-                DateFormatString = "yyyy-MM-dd HH:mm:ss"
-            });
+            var data = await repository.GetPagedListAsync(
+                queryBuilderAction: queryBuilder => queryBuilder
+                     .WithInclude(query => query.Include(x => x.AccountBillType)),
+                pageIndex,
+                pageSize, HttpContext.RequestAborted);
+            return Json(data);
         }
 
         /// <summary>
@@ -65,13 +72,9 @@ namespace AccountingApp.Controllers
             {
                 predict = predict.And(b => b.CreatedBy == filerPersonName);
             }
-            int totalCount = await BusinessHelper.BillHelper.QueryCountAsync(predict);
-            List<Bill> data = new List<Bill>();
-            if (totalCount > 0)
-            {
-                data = await BusinessHelper.BillHelper.SelectWithTypeInfoAsync(pageIndex, pageSize, predict, b => b.CreatedTime);
-            }
-            return View(data.ToPagedList(pageIndex, pageSize, totalCount));
+            var data = await repository.GetPagedListAsync(queryBuilder => queryBuilder.WithPredict(predict).WithOrderBy(q => q.OrderByDescending(x => x.CreatedTime))
+            , pageIndex, pageSize);
+            return View(data.ToPagedList());
         }
 
         public ActionResult BillPayItemList(string personName)
@@ -81,16 +84,21 @@ namespace AccountingApp.Controllers
             {
                 billPayItemPredict.And(b => b.PersonName == personName);
             }
-            return Json(BusinessHelper.BillPayItemHelper.SelectAsync(billPayItemPredict, b => b.CreatedTime), new JsonSerializerSettings { DateFormatString = "yyyy-MM-dd HH:mm:sss" });
+            var billPayRepo = HttpContext.RequestServices.GetService<IEFRepository<AccountingDbContext, BillPayItem>>();
+            return Json(billPayRepo.Get(queryBuilderAction: builder => builder
+            .WithPredict(billPayItemPredict).WithOrderBy(q => q.OrderByDescending(x => x.CreatedTime))));
         }
 
         // GET: Bill/Create
         [ActionName("Create")]
         public async Task<ActionResult> CreateAsync()
         {
-            ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
-            var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
-            ViewData["Users"] = user.Select(u => u.Username);
+            var billTypeRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, BillType>>();
+            ViewData["BillTypes"] = new BillTypeViewModel(await billTypeRepo.GetAllAsync().ContinueWith(r => r.Result.OrderBy(x => x.TypeName)));
+            var userRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, User>>();
+            var userNames = await userRepo.GetAsync(u => u.Username, builder => builder.WithPredict(s => s.IsActive)
+            .WithOrderBy(x => x.OrderBy(a => a.PKID)));
+            ViewData["Users"] = userNames;
             return View();
         }
 
@@ -99,6 +107,13 @@ namespace AccountingApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> CreateAsync([Bind("BillTitle,BillDescription,BillDetails,BillType,BillFee")]Bill bill)
         {
+            var billTypeRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, BillType>>();
+            ViewData["BillTypes"] = new BillTypeViewModel(await billTypeRepo.GetAllAsync().ContinueWith(r => r.Result.OrderBy(x => x.TypeName)));
+            var userRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, User>>();
+            var userNames = await userRepo.GetAsync(u => u.Username, builder => builder.WithPredict(s => s.IsActive)
+    .WithOrderBy(x => x.OrderBy(a => a.PKID)));
+            ViewData["Users"] = userNames;
+
             try
             {
                 if (ModelState.IsValid)
@@ -107,36 +122,28 @@ namespace AccountingApp.Controllers
                     if (items.Sum(t => t.PayMoney) != bill.BillFee)
                     {
                         ModelState.AddModelError("BillFee", "每个人实付金额与总金额不符，请检查");
-                        ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
-                        var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
-                        ViewData["Users"] = user.Select(u => u.Username);
                         ViewData["ErrorMsg"] = "每个人实付金额与总金额不符，请检查";
                         return View();
                     }
                     bill.CreatedBy = User.Identity.Name;
-                    var res = await BusinessHelper.BillHelper.AddAsync(bill);
+                    var res = await repository.AddAsync(bill);
                     if (res != null)
                     {
                         var billItems = items.Select(t => new BillPayItem { BillId = res.PKID, CreatedBy = User.Identity.Name, PayMoney = t.PayMoney, PersonName = t.PersonName }).Where(b => b.PayMoney > 0).ToList();
                         //保存到数据库
-                        await BusinessHelper.BillPayItemHelper.AddAsync(billItems);
+                        var billPayItemRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, BillPayItem>>();
+                        await billPayItemRepo.InsertAsync(billItems);
                     }
                     return RedirectToAction("Index");
                 }
                 else
                 {
-                    ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
-                    var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
-                    ViewData["Users"] = user.Select(u => u.Username);
                     ViewData["ErrorMsg"] = "请求参数不合法";
                     return View();
                 }
             }
             catch (Exception)
             {
-                ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true));
-                var user = await BusinessHelper.UserHelper.SelectAsync(s => s.IsActive, u => u.PKID, true);
-                ViewData["Users"] = user.Select(u => u.Username);
                 return View();
             }
         }
@@ -145,8 +152,9 @@ namespace AccountingApp.Controllers
         [HttpGet, ActionName("Edit")]
         public async Task<ActionResult> EditAsync(int id)
         {
-            ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true), id);
-            return View(await BusinessHelper.BillHelper.FetchAsync(id));
+            var billTypeRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, BillType>>();
+            ViewData["BillTypes"] = new BillTypeViewModel(await billTypeRepo.GetAllAsync().ContinueWith(r => r.Result.OrderBy(x => x.TypeName)));
+            return View(await repository.FindAsync(id));
         }
 
         // POST: Bill/Edit/5
@@ -157,12 +165,13 @@ namespace AccountingApp.Controllers
             try
             {
                 bill.UpdatedBy = User.Identity.Name;
-                await BusinessHelper.BillHelper.UpdateAsync(bill, "BillTitle", "BillType", "BillDescription", "UpdatedBy", "UpdatedTime");
+                await repository.UpdateAsync(bill, "BillTitle", "BillType", "BillDescription", "UpdatedBy", "UpdatedTime");
                 return RedirectToAction("Index");
             }
             catch
             {
-                ViewData["BillTypes"] = new BillTypeViewModel(await BusinessHelper.BillTypeHelper.SelectAsync(b => true, b => b.TypeName, true), bill.PKID);
+                var billTypeRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, BillType>>();
+                ViewData["BillTypes"] = new BillTypeViewModel(await billTypeRepo.GetAllAsync().ContinueWith(r => r.Result.OrderBy(x => x.TypeName)));
                 return View();
             }
         }
@@ -183,11 +192,11 @@ namespace AccountingApp.Controllers
                 result.ErrorMsg = "请求参数异常";
                 return Json(result);
             }
-            Bill bill = new Bill { PKID = id, BillStatus = status };
+            var bill = new Bill { PKID = id, BillStatus = status };
             bill.UpdatedBy = User.Identity.Name;
-            await BusinessHelper.BillHelper.UpdateAsync(bill, b => b.BillStatus);
+            await repository.UpdateAsync(bill, b => b.BillStatus);
             result.Status = JsonResultStatus.Success;
-            result.ErrorMsg = "操作成功";
+            result.ErrorMsg = "";
             return Json(result);
         }
 
@@ -198,7 +207,7 @@ namespace AccountingApp.Controllers
             {
                 return NotFound();
             }
-            var bill = await BusinessHelper.BillHelper.FetchAsync(id);
+            var bill = await repository.FindAsync(id);
             if (bill == null)
             {
                 return NotFound();
@@ -211,7 +220,10 @@ namespace AccountingApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmedAsync(int id)
         {
-            await Task.WhenAll(BusinessHelper.BillHelper.DeleteAsync(m => m.PKID == id, User.Identity.Name), BusinessHelper.BillPayItemHelper.DeleteAsync(t => t.BillId == id, User.Identity.Name));
+            await Task.WhenAll(
+                repository.DeleteAsync(m => m.PKID == id, User.Identity.Name),
+                HttpContext.RequestServices.GetRequiredService<AccountingRepository<BillPayItem>>()
+                .DeleteAsync(t => t.BillId == id, User.Identity.Name));
             return RedirectToAction("Index");
         }
     }

@@ -36,6 +36,12 @@ namespace AccountingApp.Models
             modelBuilder.Entity<Bill>().Property(m => m.PKID).ValueGeneratedOnAdd();
             modelBuilder.Entity<BillPayItem>().Property(m => m.PKID).ValueGeneratedOnAdd();
 
+            // QueryFilter
+            modelBuilder.Entity<User>().HasQueryFilter(m => !m.IsDeleted);
+            modelBuilder.Entity<BillType>().HasQueryFilter(m => !m.IsDeleted);
+            modelBuilder.Entity<Bill>().HasQueryFilter(m => !m.IsDeleted);
+            modelBuilder.Entity<BillPayItem>().HasQueryFilter(m => !m.IsDeleted);
+
             base.OnModelCreating(modelBuilder);
         }
 
