@@ -35,7 +35,7 @@ namespace AccountingApp.Controllers
 
         public async Task<ActionResult> ExportBillsReport()
         {
-            var bills = await repository.GetAsync(queryBuilderAction: queryBuilder => queryBuilder
+            var bills = await repository.GetAsync(queryBuilder => queryBuilder
             .WithOrderBy(query => query.OrderBy(x => x.CreatedTime)), HttpContext.RequestAborted);
             if (bills != null && bills.Any())
             {
@@ -48,8 +48,7 @@ namespace AccountingApp.Controllers
         [ActionName("List")]
         public async Task<ActionResult> ListAsync(int pageIndex = 1, int pageSize = 20)
         {
-            var data = await repository.GetPagedListAsync(
-                queryBuilderAction: queryBuilder => queryBuilder
+            var data = await repository.GetPagedListAsync(queryBuilder => queryBuilder
                      .WithInclude(query => query.Include(x => x.AccountBillType)),
                 pageIndex,
                 pageSize, HttpContext.RequestAborted);

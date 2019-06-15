@@ -55,7 +55,7 @@ namespace AccountingApp.Controllers
         public async Task<IActionResult> BillPayTypeSummary()
         {
             var billPayItems = (await HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, Bill>>()
-                .GetAsync(queryBuilderAction: builder => builder.WithInclude(x => x.Include(_ => _.AccountBillType)), HttpContext.RequestAborted))
+                .GetAsync(builder => builder.WithInclude(x => x.Include(_ => _.AccountBillType)), HttpContext.RequestAborted))
                 .GroupBy(b => new { b.BillType, TypeName = b.AccountBillType?.TypeName })
                 .Select(g => new BasicReportModel
                 {
