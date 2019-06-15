@@ -96,7 +96,7 @@ namespace AccountingApp.Controllers
             var billTypeRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, BillType>>();
             ViewData["BillTypes"] = new BillTypeViewModel(await billTypeRepo.GetAllAsync().ContinueWith(r => r.Result.OrderBy(x => x.TypeName)));
             var userRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, User>>();
-            var userNames = await userRepo.GetAsync(u => u.Username, builder => builder.WithPredict(s => s.IsActive)
+            var userNames = await userRepo.GetResultAsync(u => u.Username, builder => builder.WithPredict(s => s.IsActive)
             .WithOrderBy(x => x.OrderBy(a => a.PKID)));
             ViewData["Users"] = userNames;
             return View();
@@ -110,7 +110,7 @@ namespace AccountingApp.Controllers
             var billTypeRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, BillType>>();
             ViewData["BillTypes"] = new BillTypeViewModel(await billTypeRepo.GetAllAsync().ContinueWith(r => r.Result.OrderBy(x => x.TypeName)));
             var userRepo = HttpContext.RequestServices.GetRequiredService<IEFRepository<AccountingDbContext, User>>();
-            var userNames = await userRepo.GetAsync(u => u.Username, builder => builder.WithPredict(s => s.IsActive)
+            var userNames = await userRepo.GetResultAsync(u => u.Username, builder => builder.WithPredict(s => s.IsActive)
     .WithOrderBy(x => x.OrderBy(a => a.PKID)));
             ViewData["Users"] = userNames;
 
