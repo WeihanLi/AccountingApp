@@ -41,11 +41,7 @@ namespace AccountingApp.Controllers
                 Data = billPayItems
             };
 
-            return Json(new JsonResultModel
-            {
-                Status = JsonResultStatus.Success,
-                Result = reportModel
-            });
+            return Json(JsonResultModel.Success(reportModel));
         }
 
         /// <summary>
@@ -71,11 +67,7 @@ namespace AccountingApp.Controllers
                 Data = billPayItems
             };
 
-            return Json(new JsonResultModel
-            {
-                Status = JsonResultStatus.Success,
-                Result = reportModel
-            });
+            return Json(JsonResultModel.Success(reportModel));
         }
 
         public IActionResult Error()
