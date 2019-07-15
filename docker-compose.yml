@@ -1,14 +1,11 @@
-version: '2'
+version: '3'
 services:
   mysql:
-    image: mysql:5.6
+    image: mysql:8.0
     container_name: mysql
     ports:
       - 3306:3306      
     environment:
-      - "MYSQL_ROOT_PASSWORD=Admin888"
-    mem_limit: 1g # memory limit
-    restart: always
 
   accountingapp:
     container_name: accountingapp
@@ -19,7 +16,5 @@ services:
       - 10230:80
     links:
       - mysql:mysql-server
-    depends_on:
+    depends_on: 
       - mysql
-    environment:
-      ConnnectionStrings__AccountingConnection: server=mysql-server;database=test;uid=root;pwd=Admin888
