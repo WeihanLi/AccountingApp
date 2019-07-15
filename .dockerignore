@@ -5,12 +5,14 @@
 .vs
 .vscode
 .git
+**/Logs/
 
 
 # files
-Dockerfile*
+Dockerfile
 **/*.trx
 **/*.md
+**/*.log
 **.yml
 **.yaml
 .gitignore

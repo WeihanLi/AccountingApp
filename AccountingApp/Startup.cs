@@ -11,12 +11,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using StackExchange.Redis;
 using WeihanLi.Common;
+using WeihanLi.Common.Helpers;
 using WeihanLi.DataProtection;
 using WeihanLi.EntityFramework;
 using WeihanLi.Npoi;
-using WeihanLi.Redis;
 
 namespace AccountingApp
 {
@@ -57,6 +56,7 @@ namespace AccountingApp
                 });
 
             services.AddDataProtection()
+                .SetApplicationName(ApplicationHelper.ApplicationName)
                 .AddParamsProtection(options =>
                 {
                     options.ExpiresIn = 10;
@@ -67,22 +67,10 @@ namespace AccountingApp
                         "pkid"
                     };
                     options.AddProtectValue<JsonResult>(r => r.Value);
-                })
-                .PersistKeysToStackExchangeRedis(() => DependencyResolver.Current.GetRequiredService<IConnectionMultiplexer>().GetDatabase(5), "DataProtection-Keys")
-                ;
+                });
 
             //add AddAccessControlHelper
             services.AddAccessControlHelper<AccountingResourceAccessStrategy, AccountingControlAccessStrategy>();
-            services.AddRedisConfig(options =>
-            {
-#if !DEBUG
-                options.RedisServers = new[]
-                {
-                    new RedisServerConfiguration(Configuration.GetConnectionString("Redis")),
-                };
-#endif
-                options.DefaultDatabase = 2;
-            });
 
             services
                 .AddEFRepository()
