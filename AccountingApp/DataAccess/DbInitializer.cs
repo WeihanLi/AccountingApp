@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using AccountingApp.Models;
 using Microsoft.EntityFrameworkCore;
 using WeihanLi.Common.Helpers;
 using WeihanLi.EntityFramework.DbDescriptionHelper;
@@ -21,9 +18,9 @@ namespace AccountingApp.DataAccess
                 return;   // database has created
             }
             Models.User[] users = {
-                new Models.User { Username = "liweihan",PasswordHash = SecurityHelper.SHA256_Encrypt("Test1234"),IsActive=true,CreatedBy = "System",CreatedTime = DateTime.Now,UpdatedBy = "System",UpdatedTime=DateTime.Now },
-                new Models.User { Username = "heyafei",PasswordHash = SecurityHelper.SHA256_Encrypt("Test1234"),IsActive=true,CreatedBy = "System",CreatedTime = DateTime.Now,UpdatedBy = "System",UpdatedTime=DateTime.Now },
-                new Models.User { Username = "zoushirong",PasswordHash = SecurityHelper.SHA256_Encrypt("Test1234"),IsActive=true,CreatedBy = "System",CreatedTime = DateTime.Now,UpdatedBy = "System",UpdatedTime=DateTime.Now }
+                new Models.User { Username = "liweihan",PasswordHash = SecurityHelper.SHA256("Test1234"),IsActive=true,CreatedBy = "System",CreatedTime = DateTime.Now,UpdatedBy = "System",UpdatedTime=DateTime.Now },
+                new Models.User { Username = "heyafei",PasswordHash = SecurityHelper.SHA256("Test1234"),IsActive=true,CreatedBy = "System",CreatedTime = DateTime.Now,UpdatedBy = "System",UpdatedTime=DateTime.Now },
+                new Models.User { Username = "zoushirong",PasswordHash = SecurityHelper.SHA256("Test1234"),IsActive=true,CreatedBy = "System",CreatedTime = DateTime.Now,UpdatedBy = "System",UpdatedTime=DateTime.Now }
             };
             context.Users.AddRange(users);
             Models.BillType[] types =

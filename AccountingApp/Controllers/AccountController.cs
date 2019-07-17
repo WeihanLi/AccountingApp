@@ -40,7 +40,7 @@ namespace AccountingApp.Controllers
                     result.ErrorMsg = "用户名不存在！";
                     return Json(result);
                 }
-                if (!user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(model.OldPassword)))
+                if (!user.PasswordHash.Equals(SecurityHelper.SHA256(model.OldPassword)))
                 {
                     result.Status = JsonResultStatus.RequestError;
                     result.ErrorMsg = "原密码有误，请重试";
@@ -48,7 +48,7 @@ namespace AccountingApp.Controllers
                 }
                 else
                 {
-                    user.PasswordHash = SecurityHelper.SHA256_Encrypt(model.NewPassword);
+                    user.PasswordHash = SecurityHelper.SHA256(model.NewPassword);
                     var isSuccess = await repository.UpdateAsync(user, u => u.PasswordHash).ContinueWith(r => r.Result > 0);
                     if (isSuccess)
                     {
@@ -83,7 +83,7 @@ namespace AccountingApp.Controllers
                 result.ErrorMsg = "用户不存在！";
                 return Json(result);
             }
-            if (!user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(password)))
+            if (!user.PasswordHash.Equals(SecurityHelper.SHA256(password)))
             {
                 result.Status = JsonResultStatus.RequestError;
                 result.ErrorMsg = "原密码有误";
@@ -134,7 +134,7 @@ namespace AccountingApp.Controllers
                 }
                 else
                 {
-                    if (user.PasswordHash.Equals(SecurityHelper.SHA256_Encrypt(model.Password)))
+                    if (user.PasswordHash.Equals(SecurityHelper.SHA256(model.Password)))
                     {
                         var u = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, user.Username) }, CookieAuthenticationDefaults.AuthenticationScheme));
                         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, u, new AuthenticationProperties { IsPersistent = model.RememberMe, AllowRefresh = true });
