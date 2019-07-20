@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WeihanLi.AspNetMvc.MvcSimplePager;
 using WeihanLi.Common.Data;
-using WeihanLi.Common.Helpers;
 using WeihanLi.Common.Models;
 using WeihanLi.EntityFramework;
 using WeihanLi.Extensions;
@@ -30,8 +29,7 @@ namespace AccountingApp.Controllers
         }
 
         // GET: Bill
-        public ActionResult Index()
-        => View("NewIndex");
+        public ActionResult Index() => View("NewIndex");
 
         public async Task<ActionResult> ExportBillsReport()
         {
@@ -117,7 +115,7 @@ namespace AccountingApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var items = ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(bill.BillDetails);
+                    var items = bill.BillDetails.JsonToType<List<BillPayItemViewModel>>();
                     if (items.Sum(t => t.PayMoney) != bill.BillFee)
                     {
                         ModelState.AddModelError("BillFee", "每个人实付金额与总金额不符，请检查");
