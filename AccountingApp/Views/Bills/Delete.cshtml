@@ -1,15 +1,18 @@
 ﻿@model AccountingApp.Models.Bill
+@using WeihanLi.Extensions
+
 @{
     ViewData["Title"] = "删除账单";
 }
 <style>
-    dl{
-        margin-left:1em;
-        padding:1em;
+    dl {
+        margin-left: 1em;
+        padding: 1em;
     }
-    dl > dd{
-        margin:1.4em 1.2em;
-    }
+
+        dl > dd {
+            margin: 1.4em 1.2em;
+        }
 </style>
 
 <h2>@ViewData["Title"] </h2>
@@ -41,25 +44,25 @@
         </dt>
         <dd>
             @{
-                    var details = WeihanLi.Common.Helpers.ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(Model.BillDetails);
-                    <table>
-                        <thead>
+                var details = Model.BillDetails.JsonToType<List<BillPayItemViewModel>>();
+                <table>
+                    <thead>
                         <tr>
                             <th>用户</th>
                             <th>金额</th>
                         </tr>
-                        </thead>
-                        <tbody>
+                    </thead>
+                    <tbody>
                         @foreach (var item in details)
                         {
                             <tr>
                                 <td>@item.PersonName &nbsp;</td>
-                                <td>&nbsp; @(" ￥"+item.PayMoney.ToString("0.00"))</td>
+                                <td>&nbsp; @(" ￥" + item.PayMoney.ToString("0.00"))</td>
                             </tr>
                         }
-                        </tbody>
-                    </table>
-                }
+                    </tbody>
+                </table>
+            }
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.BillStatus)
@@ -107,11 +110,11 @@
         <dd>
             @Html.DisplayFor(model => model.UpdatedTime)
         </dd>
-    </dl>    
-    <form asp-action="Delete">        
+    </dl>
+    <form asp-action="Delete">
         <input type="hidden" asp-for="PKID" />
         <div class="form-actions no-color">
-            <input type="submit" value="删除" class="btn btn-danger"/> |
+            <input type="submit" value="删除" class="btn btn-danger" /> |
             <a asp-action="Index">返回</a>
         </div>
     </form>

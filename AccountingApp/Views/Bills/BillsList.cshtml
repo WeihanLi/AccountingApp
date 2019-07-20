@@ -1,4 +1,5 @@
 ﻿@model IPagedListModel<AccountingApp.Models.Bill>
+@using WeihanLi.Extensions
 @{
     Layout = null;
 }
@@ -52,33 +53,32 @@
                     <td>@bill.BillFee.ToString("0.00")</td>
                     <td>
                         @{
-                            var details = WeihanLi.Common.Helpers.ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(bill.BillDetails);
+                            var details = bill.BillDetails.JsonToType<List<BillPayItemViewModel>>();
                             <dl>
                                 @foreach (var item in details)
                                 {
                                     <dt>@item.PersonName</dt>
                                     <dd>@("￥" + item.PayMoney.ToString("0.00"))</dd>
                                 }
-
                             </dl>
                         }
                     </td>
                     <td>
                         @switch (bill.BillStatus)
-                    {
-                        case 1:
+                        {
+                            case 1:
                                 @Html.Raw("申请报销");
-                            break;
-                        case 2:
+                                break;
+                            case 2:
                                 @Html.Raw("已报销");
-                            break;
-                        case 3:
+                                break;
+                            case 3:
                                 @Html.Raw("已取消申请报销");
-                            break;
-                        default:
+                                break;
+                            default:
                                 @Html.Raw("新建");
-                            break;
-                    }
+                                break;
+                        }
                     </td>
                     <td>
                         @bill.CreatedBy
@@ -108,14 +108,14 @@
                         | <a href='@Url.Action("Edit","Bills",new {id = bill.PKID})'>编辑</a> | <a href='@Url.Action("Delete","Bills",new {id = bill.PKID})'>删除</a>
                     </td>
                 </tr>
-                            }
+            }
         </tbody>
     </table>
     @Html.Pager(Model.Pager, pageIndex => String.Format("javascript:loadData({0})", pageIndex), "_PagerPartial", displayMode: PagingDisplayMode.IfNeeded)
-                            }
-                            else
-                            {
-                                <div class="nodata-tip">
-                                    暂时没有数据
-                                </div>
-                            }
+}
+else
+{
+    <div class="nodata-tip">
+        暂时没有数据
+    </div>
+}

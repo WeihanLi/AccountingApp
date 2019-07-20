@@ -1,4 +1,5 @@
 ﻿@model AccountingApp.Models.Bill
+@using WeihanLi.Extensions
 
 @{
     ViewData["Title"] = "编辑账单";
@@ -34,28 +35,28 @@
         <div class="form-group">
             <label asp-for="BillFee" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="BillFee" class="form-control disabled" readonly="readonly" disabled="disabled" /><br/>
+                <input asp-for="BillFee" class="form-control disabled" readonly="readonly" disabled="disabled" /><br />
                 @{
-                    var details = WeihanLi.Common.Helpers.ConvertHelper.JsonToObject<List<BillPayItemViewModel>>(Model.BillDetails);
+                    var details = Model.BillDetails.JsonToType<List<BillPayItemViewModel>>();
                     <table>
                         <thead>
-                        <tr>
-                            <th>用户</th>
-                            <th>金额</th>
-                        </tr>
+                            <tr>
+                                <th>用户</th>
+                                <th>金额</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        @foreach (var item in details)
-                        {
-                            <tr>
-                                <td>@item.PersonName &nbsp;</td>
-                                <td>&nbsp; @(" ￥"+item.PayMoney.ToString("0.00"))</td>
-                            </tr>
-                        }
+                            @foreach (var item in details)
+                            {
+                                <tr>
+                                    <td>@item.PersonName &nbsp;</td>
+                                    <td>&nbsp; @(" ￥" + item.PayMoney.ToString("0.00"))</td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 }
-            </div>            
+            </div>
         </div>
         <input type="hidden" asp-for="PKID" />
         <div class="form-group">
