@@ -72,9 +72,8 @@ namespace AccountingApp
             //add AddAccessControlHelper
             services.AddAccessControlHelper<AccountingResourceAccessStrategy, AccountingControlAccessStrategy>();
 
-            services
-                .AddEFRepository()
-                .AddAccountingRepository();
+            services.AddEFRepository();
+            services.AddAccountingRepository();
 
             DependencyResolver.SetDependencyResolver(services);
         }
